@@ -8,3 +8,8 @@ tree.o: tree.cpp
 
 test.o: test.cpp
 	g++ -c test.cpp
+
+.PHONY : clean
+clean:
+	rm -rf *.o test
+	rm -rf *.o main
