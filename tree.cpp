@@ -29,14 +29,15 @@ char* my_memcpy(char* line){
 
 Tree::Tree(){
 
+    printf("tree construct was called\n");
     undef_brunch = (knot*) calloc(1, sizeof(knot));
 
     root = (knot*) calloc(1, sizeof(knot));
     root->data = NULL;
     root->knot_depth = 0;
     root->knot_horizontal_position = 0;
-    root->L_brunch = (knot*) undef_brunch;
-    root->R_brunch = (knot*) undef_brunch;
+    root->L_brunch = NULL;
+    root->R_brunch = NULL;
     root->prev = NULL;
 
     depth = 0;
@@ -46,14 +47,15 @@ Tree::Tree(){
 
 Tree::Tree(FILE* base){//для бинарного
 
+    printf("tree construct(FILE*) was called\n");
     undef_brunch = (knot*) calloc(1, sizeof(knot));
 
     root = (knot*) calloc(1, sizeof(knot));
     root->data = NULL;
     root->knot_depth = 0;
     root->knot_horizontal_position = 0;
-    root->L_brunch = (knot*) undef_brunch;
-    root->R_brunch = (knot*) undef_brunch;
+    root->L_brunch = NULL;
+    root->R_brunch = NULL;
     root->prev = NULL;
     
     depth = 0;

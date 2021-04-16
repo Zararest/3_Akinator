@@ -9,6 +9,14 @@
 #include <cstring>
 #include <cassert>
 
+#define MAXLEN 100
+enum Akinators_code{
+
+    MY_WIN = 0,
+    MY_FAULT = 1,
+    FIRST_TRY = 2,
+};
+
 typedef struct knot_struct{
 
     char* data;
@@ -19,6 +27,7 @@ typedef struct knot_struct{
     int knot_horizontal_position;
 } knot;
 
+char* my_memcpy(char*);
 
 class Tree{
 
@@ -36,7 +45,7 @@ public:
 
     Tree(const Tree&) = delete;
 
-private:
+protected:
 
     knot* root;
     int depth;
@@ -51,6 +60,8 @@ public:
 
     Akinator();
 
+    Akinator(FILE*);
+
     ~Akinator();
 
     Akinator& operator = (const Akinator&) = delete;
@@ -59,10 +70,21 @@ public:
 
     int guess_and_add();
 
+    void init_data();
+
+    void add_question(knot*);
+
+    void add_leaf(knot*, char);
+
     void dump();
+
+    void add_to_log(const char*);
+
+    void add_to_log(const char*, char*);
 
 private:
 
+    FILE* log;
 };
 
 #endif

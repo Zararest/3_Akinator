@@ -5,7 +5,7 @@
 
 int main(){
 
-    FILE* tmp = fopen("test.bin", "wb");
+    /*FILE* tmp = fopen("test.bin", "wb");
     int len = 50;
     char* line = (char*) calloc(len, sizeof(char));
 
@@ -14,8 +14,15 @@ int main(){
     fwrite(line, sizeof(char), len, tmp);
     fclose(tmp);
 
-    tmp = fopen("test.bin", "rb");
+    tmp = fopen("test.bin", "rb");*/
 
-    Tree test_tree(tmp);
-    test_tree.dump_tree();
+    //Tree test_tree;
+    
+    
+    Akinator test_akinator;
+
+    
+    test_akinator.guess_and_add();
+    test_akinator.guess_and_add();
+    //test_tree.dump_tree();
 }
