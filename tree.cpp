@@ -4,6 +4,19 @@
 #define CHECK_LEFTEST if (tmp->knot_horizontal_position < leftest_knot) leftest_knot = tmp->knot_horizontal_position
 #define CHECK_DEEPEST if (tmp->knot_depth > depth) depth = tmp->knot_depth
 
+int length(char* line){
+
+    assert(line != NULL);
+    printf("in len line %s", line);
+    int i = 0;
+    while (line[i] != '\0'){
+
+        i++;
+    }
+    printf(" return %i\n", i);
+    return i;
+}
+
 char* my_memcpy(char* line){
 
     int len = 0;
@@ -43,6 +56,7 @@ Tree::Tree(){
     depth = 0;
     rightest_knot = 0;
     leftest_knot = 0;
+    data_size = 0;
 }
 
 Tree::Tree(FILE* base){//для бинарного
@@ -63,41 +77,48 @@ Tree::Tree(FILE* base){//для бинарного
     leftest_knot = 0;
 
     knot* tmp = root;
-    int buffers_size = 0, i = 0, r_brn_exist = 0, l_brn_exist = 0;
+    int buffer_size = 0, i = 0, r_brn_exist = 0, l_brn_exist = 0;
     char* word = NULL;
     char* name = NULL;
 
-    fread(&buffers_size, sizeof(int), 1, base);
-    char* buffer = (char*) calloc(buffers_size, sizeof(char));
-    printf("buffer size =%i\n", buffers_size);
-    fread(buffer, sizeof(char), buffers_size, base);
+    fread(&buffer_size, sizeof(int), 1, base);
+    data_size = buffer_size;
 
+    char* buffer = (char*) calloc(buffer_size, sizeof(char));
+    printf("buffer size =%i\n\n\n", buffer_size);
+    fread(buffer, sizeof(char), buffer_size, base);
+    printf("buffer = %s\n", buffer);
     word = strtok(buffer, "|");
     
     while (word != NULL){// *имя*|Y|N|*...
                             //    |
-        assert(word != NULL);//    \____Существлвание левой ветки(следующее значение - существование правой ветки)
-        name = word;         // обход сначала на максимум влево(справа находятся положительные горизонтаьные позиции)
-        l_brn_exist = (*strtok(NULL, "|") == 'Y');
-        r_brn_exist = (*strtok(NULL, "|") == 'Y');
-        word = strtok(NULL, "|");
+                            //    \____Существлвание левой ветки(следующее значение - существование правой ветки)
+        name = word;        // обход сначала на максимум влево(справа находятся положительные горизонтаьные позиции)
         
+        word = strtok(NULL, "|");
+        assert(word != NULL);
+        l_brn_exist = (word[0] == 'Y');
+
+        word = strtok(NULL, "|");
+        assert(word != NULL);
+        r_brn_exist = (word[0] == 'Y');
+
+        word = strtok(NULL, "|");
+
         tmp->data = my_memcpy(name);
         CHECK_RIGHTEST;
         CHECK_LEFTEST;
         CHECK_DEEPEST;
 
+        assert(tmp != NULL);
         if (r_brn_exist){
 
             tmp->R_brunch = undef_brunch;
-            tmp->R_brunch->knot_depth = tmp->knot_depth + 1;
-            tmp->R_brunch->knot_horizontal_position = tmp->knot_horizontal_position + 1;
         } else{
 
             tmp->R_brunch = NULL;
-            
         }
-
+  
         if (l_brn_exist){
 
             tmp->L_brunch = (knot*) calloc(1, sizeof(knot));
@@ -120,12 +141,16 @@ Tree::Tree(FILE* base){//для бинарного
 
                 tmp->R_brunch = (knot*) calloc(1, sizeof(knot));
                 tmp->R_brunch->knot_depth = tmp->knot_depth + 1;
+                tmp->R_brunch->knot_horizontal_position = tmp->knot_horizontal_position + 1;
                 tmp->R_brunch->prev = tmp;
                 tmp = tmp->R_brunch;
             }
         }
         
     }
+
+    free(undef_brunch);
+    free(buffer);
 }
 
 void print_knot(knot* tmp){
@@ -144,6 +169,43 @@ void Tree::dump_tree(){
     print_knot(root);
 }
 
+
+void add_to_file(knot* tmp, FILE* output){
+
+    if (tmp != NULL){
+
+        fwrite(tmp->data, sizeof(char), length(tmp->data), output);
+        if (tmp->L_brunch != NULL){
+
+            fwrite("|Y|", sizeof(char), 3, output);
+        } else{
+
+            fwrite("|N|", sizeof(char), 3, output);
+        }
+
+        if (tmp->R_brunch != NULL){
+
+            fwrite("|Y|", sizeof(char), 3, output);
+        } else{
+
+            fwrite("|N|", sizeof(char), 3, output);
+        }
+
+        add_to_file(tmp->L_brunch, output);
+        add_to_file(tmp->R_brunch, output);
+    }
+}
+
+void Tree::create_base_file(char* name_of_file){
+
+    FILE* output = fopen(name_of_file, "wb");
+
+    data_size += 2;
+    fwrite(&data_size, sizeof(int), 1, output);
+    add_to_file(root, output);
+
+    fclose(output);
+}
 
 void delete_knot(knot* tmp){
 

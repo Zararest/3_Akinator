@@ -19,6 +19,7 @@ Akinator::Akinator():Tree(){
     setlocale(LC_ALL, "Russian");
     printf("akinator construct was called\n");
     log = fopen("Akinator_log.txt", "w");
+    //log = stdout;
 }
 
 
@@ -26,6 +27,7 @@ Akinator::Akinator(FILE* base):Tree(base) {
 
     printf("akinator construct(FILE*) was called\n");
     log = fopen("Akinator_log.txt", "w");
+    //log = stdout;
     add_to_log("Akinator has been created with input data");
 }
 
@@ -54,16 +56,27 @@ void Akinator::add_leaf(knot* old_leaf, char answer){
     printf("Введи имя своего персонажа:\n");
     scanf("%s", name);
 
+    assert(old_leaf != NULL);
     if ((answer == 'Y') || (answer == 'y')){
 
         INIT_L_BRN_DATA(old_leaf);
+        assert(old_leaf->L_brunch != NULL);
         old_leaf->L_brunch->data = my_memcpy(name);
+        
+        data_size += length(old_leaf->L_brunch->data) + 6;
+
+        add_to_log("In add leaf item was added to the left brunch:", old_leaf->L_brunch->data);
     }
 
     if ((answer == 'N') || (answer == 'n')){
 
         INIT_R_BRN_DATA(old_leaf);
+        assert(old_leaf->R_brunch != NULL);
         old_leaf->R_brunch->data = my_memcpy(name);
+        
+        data_size += length(old_leaf->R_brunch->data) + 6;
+
+        add_to_log("In add leaf item was added to the right brunch:", old_leaf->R_brunch->data);
     }
     
 }
@@ -84,15 +97,25 @@ void Akinator::add_question(knot* old_leaf){
     printf("Как зовут твоего персонажа?\n");
     scanf("%s", name);
 
+    assert(old_leaf != NULL);
     if ((answer[0] == 'Y') || (answer[0] == 'y')){
 
-        old_leaf->L_brunch->data = my_memcpy(name);
         INIT_L_BRN_DATA(old_leaf);
+        old_leaf->L_brunch->data = my_memcpy(name);
 
-        old_leaf->R_brunch->data = old_leaf->data;
+        data_size += length(old_leaf->L_brunch->data) + 6;
+
         INIT_R_BRN_DATA(old_leaf);
+        old_leaf->R_brunch->data = old_leaf->data;
 
+        assert(old_leaf->L_brunch->data != NULL);
+        assert(old_leaf->R_brunch->data != NULL);
+        add_to_log("In add question item was added to the left brunch:", old_leaf->L_brunch->data);
         old_leaf->data = my_memcpy(attribute);
+        assert(old_leaf->data != NULL);
+
+        data_size += length(old_leaf->data) + 6;
+
     } else{
 
         if ((answer[0] == 'N') || (answer[0] == 'n')){
@@ -100,11 +123,18 @@ void Akinator::add_question(knot* old_leaf){
             INIT_R_BRN_DATA(old_leaf);
             old_leaf->R_brunch->data = my_memcpy(name);
 
-            
-            old_leaf->L_brunch->data = old_leaf->data;
-            INIT_L_BRN_DATA(old_leaf);
+            data_size += length(old_leaf->R_brunch->data) + 6;
 
+            INIT_L_BRN_DATA(old_leaf);
+            old_leaf->L_brunch->data = old_leaf->data;
+
+            assert(old_leaf->L_brunch->data != NULL);
+            assert(old_leaf->R_brunch->data != NULL);
+            add_to_log("In add question item was added to the right brunch:", old_leaf->R_brunch->data);
             old_leaf->data = my_memcpy(attribute);
+            assert(old_leaf->data != NULL);
+
+            data_size += length(old_leaf->data) + 6;
         } else{
 
             printf("Неправильный ответ, поэтому ты дисквалификацирован\n");
@@ -132,15 +162,29 @@ void Akinator::init_data(){
     if ((answer[0] == 'Y') || (answer[0] == 'y')){
 
         INIT_L_BRN_DATA(root);
+        root->L_brunch->data = my_memcpy(name);
         root->data = my_memcpy(fir_attribute);
+        assert(root->L_brunch->data != NULL);
+        assert(root->data != NULL);
+
+        data_size += length(root->L_brunch->data)+ 5 + length(root->data) + 6;
+
+        add_to_log("In init data item was added to the left brunch:", root->L_brunch->data);
     } else{
 
         if ((answer[0] == 'N') || (answer[0] == 'n')){
 
             INIT_R_BRN_DATA(root);
+            root->R_brunch->data = my_memcpy(name);
             root->data = my_memcpy(fir_attribute);
-        } else{
+            assert(root->R_brunch->data != NULL);
+            assert(root->data != NULL);
 
+            data_size += length(root->R_brunch->data)+ 5 + length(root->data) + 6;
+
+            add_to_log("In init data item was added to the right brunch:", root->R_brunch->data);
+        } else{
+            
             printf("Неправильный ответ\n");
         }
     }
@@ -148,12 +192,14 @@ void Akinator::init_data(){
 
 int Akinator::guess_and_add(){//если да то идем влево
 
+    add_to_log("Guess was called:");
     knot* tmp = root;
     knot* prev_knot = tmp;
     char answer[MAXLEN] = {'!'};
     
     if (root->data == NULL){
 
+        add_to_log("-first init data");
         init_data();
         return FIRST_TRY;
     }
@@ -171,11 +217,12 @@ int Akinator::guess_and_add(){//если да то идем влево
         if ((answer[0] == 'Y') || (answer[0] == 'y')){
 
             tmp = tmp->L_brunch;
+            add_to_log("-go left");
         } else{
 
             if ((answer[0] == 'N') || (answer[0] == 'n')){
 
-                printf("in N\n");
+                add_to_log("-go right");
                 tmp = tmp->R_brunch;
             } else{
 
@@ -198,20 +245,25 @@ int Akinator::guess_and_add(){//если да то идем влево
         printf("[Y/N]?\n");
         scanf("%s", answer);
 
+        add_to_log("-attempt to guess answer:", answer);
         if ((answer[0] == 'Y') || (answer[0] == 'y')){
 
             printf("Я победил\n");
+            add_to_log("-return ", "MY_WIN");
             return MY_WIN;
         } else{
 
             if ((answer[0] == 'N') || (answer[0] == 'n')){
-
+                
+                add_to_log("-adding question");
                 add_question(tmp);
+                add_to_log("-return ", "MY_FAULT");
                 return MY_FAULT;
             } else{
 
                 printf("Неправильный ответ, поэтому ты дисквалификацирован\n");
                 printf("Я победил\n");
+                add_to_log("-return ", "MY_WIN");
                 return MY_WIN;
             }
         }
@@ -219,6 +271,7 @@ int Akinator::guess_and_add(){//если да то идем влево
     } else{
 
         printf("Хз, что ты загадал\n");
+        add_to_log("-adding leaf with answer:", answer);
         add_leaf(prev_knot, answer[0]);
         return MY_FAULT;
     }

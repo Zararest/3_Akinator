@@ -5,24 +5,24 @@
 
 int main(){
 
-    /*FILE* tmp = fopen("test.bin", "wb");
-    int len = 50;
-    char* line = (char*) calloc(len, sizeof(char));
+    /*Akinator test_akinator;
+    char flag[MAXLEN] = {'!'};
 
-    scanf("%s", line);
-    fwrite(&len, sizeof(int), 1, tmp);
-    fwrite(line, sizeof(char), len, tmp);
-    fclose(tmp);
+    while (flag[0] != 'n'){
 
-    tmp = fopen("test.bin", "rb");*/
+        test_akinator.guess_and_add();
 
-    //Tree test_tree;
-    
-    
-    Akinator test_akinator;
+        printf("Wanna continue?\n");
+        scanf("%s", flag);
+    }
 
-    
-    test_akinator.guess_and_add();
-    test_akinator.guess_and_add();
-    //test_tree.dump_tree();
+    test_akinator.dump_tree();
+    test_akinator.create_base_file("1_base.bin");*/
+
+    FILE* tmp_file = fopen("1_base.bin", "rb");
+    Akinator second_akinator(tmp_file);
+
+    second_akinator.dump_tree();
+    second_akinator.create_base_file("2_base.bin");
+
 }

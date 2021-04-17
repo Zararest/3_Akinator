@@ -28,6 +28,7 @@ typedef struct knot_struct{
 } knot;
 
 char* my_memcpy(char*);
+int length(char*);
 
 class Tree{
 
@@ -41,6 +42,8 @@ public:
 
     void dump_tree();
 
+    void create_base_file(char*);
+
     Tree& operator = (const Tree&) = delete;
 
     Tree(const Tree&) = delete;
@@ -52,6 +55,7 @@ protected:
     int rightest_knot;//Я ЗНАЮ ЧТО ТАКИх СЛОВ НЕТУ
     int leftest_knot; //Я ЗНАЮ ЧТО ТАКИх СЛОВ НЕТУ
     knot* undef_brunch;
+    int data_size;
 };
 
 class Akinator: public Tree{
