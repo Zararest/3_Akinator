@@ -4,33 +4,34 @@
 #define CHECK_LEFTEST if (tmp->knot_horizontal_position < leftest_knot) leftest_knot = tmp->knot_horizontal_position
 #define CHECK_DEEPEST if (tmp->knot_depth > depth) depth = tmp->knot_depth
 
-int length(char* line){
+int length(unsigned char* line){
 
     assert(line != NULL);
-    printf("in len line %s", line);
     int i = 0;
     while (line[i] != '\0'){
 
         i++;
     }
-    printf(" return %i\n", i);
+
     return i;
 }
 
-char* my_memcpy(char* line){
-
-    int len = 0;
-    char* new_line = NULL;
+unsigned char* my_memcpy(unsigned char* line){
 
     if (line == NULL){
         return NULL;
     }
 
+    int len = 0;
+    unsigned char* new_line = NULL;
+
+    
+
     while (line[len] != '\0'){
         len++;
     }
 
-    new_line = (char*)calloc(len + 1, sizeof(char));
+    new_line = (unsigned char*)calloc(len + 1, sizeof(char));
 
     for(int i = 0; i <= len; i++){
         new_line[i] = line[i];
@@ -42,7 +43,6 @@ char* my_memcpy(char* line){
 
 Tree::Tree(){
 
-    printf("tree construct was called\n");
     undef_brunch = (knot*) calloc(1, sizeof(knot));
 
     root = (knot*) calloc(1, sizeof(knot));
@@ -59,9 +59,10 @@ Tree::Tree(){
     data_size = 0;
 }
 
+
 Tree::Tree(FILE* base){//для бинарного
 
-    printf("tree construct(FILE*) was called\n");
+    assert(base != NULL);
     undef_brunch = (knot*) calloc(1, sizeof(knot));
 
     root = (knot*) calloc(1, sizeof(knot));
@@ -78,32 +79,30 @@ Tree::Tree(FILE* base){//для бинарного
 
     knot* tmp = root;
     int buffer_size = 0, i = 0, r_brn_exist = 0, l_brn_exist = 0;
-    char* word = NULL;
-    char* name = NULL;
+    unsigned char* word = NULL;
+    unsigned char* name = NULL;
 
     fread(&buffer_size, sizeof(int), 1, base);
-    data_size = buffer_size;
-
-    char* buffer = (char*) calloc(buffer_size, sizeof(char));
-    printf("buffer size =%i\n\n\n", buffer_size);
+    unsigned char* buffer = (unsigned char*) calloc(buffer_size, sizeof(char));
     fread(buffer, sizeof(char), buffer_size, base);
-    printf("buffer = %s\n", buffer);
-    word = strtok(buffer, "|");
+
+    data_size = buffer_size;
+    word = (unsigned char*) strtok( (char*)buffer, "|");
     
     while (word != NULL){// *имя*|Y|N|*...
                             //    |
                             //    \____Существлвание левой ветки(следующее значение - существование правой ветки)
         name = word;        // обход сначала на максимум влево(справа находятся положительные горизонтаьные позиции)
         
-        word = strtok(NULL, "|");
+        word = (unsigned char*) strtok(NULL, "|");
         assert(word != NULL);
         l_brn_exist = (word[0] == 'Y');
 
-        word = strtok(NULL, "|");
+        word = (unsigned char*) strtok(NULL, "|");
         assert(word != NULL);
         r_brn_exist = (word[0] == 'Y');
 
-        word = strtok(NULL, "|");
+        word = (unsigned char*) strtok(NULL, "|");
 
         tmp->data = my_memcpy(name);
         CHECK_RIGHTEST;

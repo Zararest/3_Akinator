@@ -19,10 +19,16 @@ int main(){
     test_akinator.dump_tree();
     test_akinator.create_base_file("1_base.bin");*/
 
-    FILE* tmp_file = fopen("1_base.bin", "rb");
+   /* FILE* tmp_file = fopen("1_base.bin", "rb");
     Akinator second_akinator(tmp_file);
 
     second_akinator.dump_tree();
-    second_akinator.create_base_file("2_base.bin");
+    second_akinator.create_base_file("2_base.bin");*/
+
+    unsigned char* tmp = (unsigned char*) calloc(30, sizeof(char));
+    setlocale(LC_ALL, "Russian");
+
+    scanf("%s", tmp);
+    printf("%s", strtok((char*)tmp, "|"));
 
 }

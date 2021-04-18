@@ -19,7 +19,7 @@ enum Akinators_code{
 
 typedef struct knot_struct{
 
-    char* data;
+    unsigned char* data;
     struct knot_struct* L_brunch;
     struct knot_struct* R_brunch;
     struct knot_struct* prev;
@@ -27,13 +27,13 @@ typedef struct knot_struct{
     int knot_horizontal_position;
 } knot;
 
-char* my_memcpy(char*);
-int length(char*);
+unsigned char* my_memcpy(unsigned char*);
+int length(unsigned char*);
 
 class Tree{
 
 public:
-
+    
     Tree();
 
     Tree(FILE*);
@@ -61,7 +61,7 @@ protected:
 class Akinator: public Tree{
 
 public:
-
+    
     Akinator();
 
     Akinator(FILE*);
@@ -78,13 +78,13 @@ public:
 
     void add_question(knot*);
 
-    void add_leaf(knot*, char);
+    void add_leaf(knot*, unsigned char);
 
     void dump();
 
     void add_to_log(const char*);
 
-    void add_to_log(const char*, char*);
+    void add_to_log(const char*, unsigned char*);
 
 private:
 

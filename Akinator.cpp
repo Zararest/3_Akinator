@@ -17,16 +17,18 @@
 Akinator::Akinator():Tree(){
 
     setlocale(LC_ALL, "Russian");
-    printf("akinator construct was called\n");
+    
     log = fopen("Akinator_log.txt", "w");
+    assert(log != NULL);
+    fprintf(log, "akinator construct was called\n");
     //log = stdout;
 }
 
 
 Akinator::Akinator(FILE* base):Tree(base) {
 
-    printf("akinator construct(FILE*) was called\n");
     log = fopen("Akinator_log.txt", "w");
+    assert(log != NULL);
     //log = stdout;
     add_to_log("Akinator has been created with input data");
 }
@@ -38,7 +40,7 @@ void Akinator::add_to_log(const char* line){
 }
 
 
-void Akinator::add_to_log(const char* line, char* name){
+void Akinator::add_to_log(const char* line, unsigned char* name){
 
     fprintf(log, "%s |%s|\n", line, name);
 }
@@ -50,9 +52,9 @@ Akinator::~Akinator(){
 }
 
 
-void Akinator::add_leaf(knot* old_leaf, char answer){
+void Akinator::add_leaf(knot* old_leaf, unsigned char answer){
 
-    char name[MAXLEN] = {'!'};
+    unsigned char name[MAXLEN] = {'!'};
     printf("Введи имя своего персонажа:\n");
     scanf("%s", name);
 
@@ -84,14 +86,14 @@ void Akinator::add_leaf(knot* old_leaf, char answer){
 
 void Akinator::add_question(knot* old_leaf){
     
-    char name[MAXLEN] = {'!'};
-    char attribute[MAXLEN] = {'!'};
-    char answer[MAXLEN] = {'!'};
+    unsigned char name[MAXLEN] = {'!'};
+    unsigned char attribute[MAXLEN] = {'!'};
+    unsigned char answer[MAXLEN] = {'!'};
     printf("Введи признак, который отличает твоего персонажа от %s:\n", old_leaf->data);
     scanf("%s", attribute);
 
-    printf("Твой персонаж отвечает этому признаку?\n");
-    printf("[Y/N]?\n");
+    printf("Твой персонаж отвечает этому признаку? ");
+    printf("[Y/N]\n\n");
     scanf("%s", answer);
 
     printf("Как зовут твоего персонажа?\n");
@@ -146,14 +148,14 @@ void Akinator::add_question(knot* old_leaf){
 
 void Akinator::init_data(){
 
-    char fir_attribute[MAXLEN] = {'!'};
-    char name[MAXLEN] = {'!'};
-    char answer[MAXLEN] = {'!'};
+    unsigned char fir_attribute[MAXLEN] = {'!'};
+    unsigned char name[MAXLEN] = {'!'};
+    unsigned char answer[MAXLEN] = {'!'};
     printf("База акинатора пуста, поэтому введите первый признак:\n");
     scanf("%s", fir_attribute);
 
-    printf("Ваш персонаж отвечает этому признаку?\n");
-    printf("[Y/N]?\n");
+    printf("Ваш персонаж отвечает этому признаку? ");
+    printf("[Y/N]\n\n");
     scanf("%s", answer);
 
     printf("Введите его имя\n");
@@ -195,7 +197,7 @@ int Akinator::guess_and_add(){//если да то идем влево
     add_to_log("Guess was called:");
     knot* tmp = root;
     knot* prev_knot = tmp;
-    char answer[MAXLEN] = {'!'};
+    unsigned char answer[MAXLEN] = {'!'};
     
     if (root->data == NULL){
 
@@ -209,7 +211,7 @@ int Akinator::guess_and_add(){//если да то идем влево
 
     while ( tmp_has_brn && (tmp != NULL)){
 
-        printf("Ваш персонаж %s?\n", tmp->data);
+        printf("Ваш персонаж %s? ", tmp->data);
         printf("[Y/N]?\n");
         scanf("%s", answer);
 
@@ -249,7 +251,7 @@ int Akinator::guess_and_add(){//если да то идем влево
         if ((answer[0] == 'Y') || (answer[0] == 'y')){
 
             printf("Я победил\n");
-            add_to_log("-return ", "MY_WIN");
+            add_to_log("-return |MY_WIN|");
             return MY_WIN;
         } else{
 
@@ -257,13 +259,13 @@ int Akinator::guess_and_add(){//если да то идем влево
                 
                 add_to_log("-adding question");
                 add_question(tmp);
-                add_to_log("-return ", "MY_FAULT");
+                add_to_log("-return |MY_FAULT|");
                 return MY_FAULT;
             } else{
 
                 printf("Неправильный ответ, поэтому ты дисквалификацирован\n");
                 printf("Я победил\n");
-                add_to_log("-return ", "MY_WIN");
+                add_to_log("-return |MY_WIN|");
                 return MY_WIN;
             }
         }
