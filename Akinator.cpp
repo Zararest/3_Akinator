@@ -89,14 +89,14 @@ void Akinator::add_question(knot* old_leaf){
     unsigned char name[MAXLEN] = {'!'};
     unsigned char attribute[MAXLEN] = {'!'};
     unsigned char answer[MAXLEN] = {'!'};
-    printf("Введи признак, который отличает твоего персонажа от %s:\n", old_leaf->data);
+    printf("\nВведи признак, который отличает твоего персонажа от %s:\n", old_leaf->data);
     scanf("%s", attribute);
 
-    printf("Твой персонаж отвечает этому признаку? ");
-    printf("[Y/N]\n\n");
+    printf("\nТвой персонаж отвечает этому признаку? ");
+    printf("[Y/N]\n");
     scanf("%s", answer);
 
-    printf("Как зовут твоего персонажа?\n");
+    printf("\nКак зовут твоего персонажа?\n");
     scanf("%s", name);
 
     assert(old_leaf != NULL);
@@ -139,7 +139,7 @@ void Akinator::add_question(knot* old_leaf){
             data_size += length(old_leaf->data) + 6;
         } else{
 
-            printf("Неправильный ответ, поэтому ты дисквалификацирован\n");
+            printf("\nНеправильный ответ, поэтому ты дисквалификацирован\n");
             printf("Я победил(наверное)\n");
         }
     }
@@ -151,14 +151,14 @@ void Akinator::init_data(){
     unsigned char fir_attribute[MAXLEN] = {'!'};
     unsigned char name[MAXLEN] = {'!'};
     unsigned char answer[MAXLEN] = {'!'};
-    printf("База акинатора пуста, поэтому введите первый признак:\n");
+    printf("\nБаза акинатора пуста, поэтому введите первый признак:\n");
     scanf("%s", fir_attribute);
 
-    printf("Ваш персонаж отвечает этому признаку? ");
-    printf("[Y/N]\n\n");
+    printf("\nВаш персонаж отвечает этому признаку? ");
+    printf("[Y/N]\n");
     scanf("%s", answer);
 
-    printf("Введите его имя\n");
+    printf("\nВведите его имя\n");
     scanf("%s", name);
 
     if ((answer[0] == 'Y') || (answer[0] == 'y')){
@@ -211,7 +211,7 @@ int Akinator::guess_and_add(){//если да то идем влево
 
     while ( tmp_has_brn && (tmp != NULL)){
 
-        printf("Ваш персонаж %s? ", tmp->data);
+        printf("\nВаш персонаж %s? ", tmp->data);
         printf("[Y/N]?\n");
         scanf("%s", answer);
 
@@ -228,7 +228,7 @@ int Akinator::guess_and_add(){//если да то идем влево
                 tmp = tmp->R_brunch;
             } else{
 
-                printf("Неправильный ответ\n");
+                printf("\nНеправильный ответ\n");
             }
         }
         
@@ -243,7 +243,7 @@ int Akinator::guess_and_add(){//если да то идем влево
 
     if (tmp != NULL){
 
-        printf("Это %s?\n", tmp->data);
+        printf("\nЭто %s?\n", tmp->data);
         printf("[Y/N]?\n");
         scanf("%s", answer);
 
@@ -263,7 +263,7 @@ int Akinator::guess_and_add(){//если да то идем влево
                 return MY_FAULT;
             } else{
 
-                printf("Неправильный ответ, поэтому ты дисквалификацирован\n");
+                printf("\nНеправильный ответ, поэтому ты дисквалификацирован\n");
                 printf("Я победил\n");
                 add_to_log("-return |MY_WIN|");
                 return MY_WIN;
@@ -277,4 +277,51 @@ int Akinator::guess_and_add(){//если да то идем влево
         add_leaf(prev_knot, answer[0]);
         return MY_FAULT;
     }
+}
+
+void print_brunch(int* position_of_line, int number_of_lines, knot* elem){
+
+    if (elem != NULL){
+
+        for (int i = 0; i < number_of_lines; i++){
+
+            for (int j = 0; j < position_of_line[i]; j++){
+                printf(" ");
+            }
+
+            printf("|");
+        }
+
+        printf("__");
+        printf("%s\n", elem->data);
+
+        position_of_line[number_of_lines] = length(elem->data); 
+
+        print_brunch(position_of_line, number_of_lines + 1, elem->R_brunch);
+        print_brunch(position_of_line, number_of_lines + 1, elem->L_brunch);
+    }
+}
+
+void Akinator::dump(){
+
+    int number_of_lines = 1;
+    int* position_of_line = (int*) calloc(depth + 1, sizeof(int));
+    position_of_line[0] = length(root->data);
+
+    printf("\nDump of tree:\n");
+    printf("--structure of dump--\n");
+    printf("root\n");
+    printf("    |__(NO brunch)\n");
+    printf("    |            |\n");
+    printf("   ...          ...\n");
+    printf("    |__(YES brunch)\n");
+    printf("                  |\n");
+    printf("                 ...\n");
+    printf("---------------------\n");
+
+    printf("%s\n", root->data);
+    print_brunch(position_of_line, number_of_lines, root->R_brunch);
+    print_brunch(position_of_line, number_of_lines, root->L_brunch);
+
+    free(position_of_line);
 }

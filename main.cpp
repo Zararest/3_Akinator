@@ -14,12 +14,28 @@ void game_without_input(){
         printf("\nWanna continue? [Y/N]\n");
         scanf("%s", answer);
     }
+
+    printf("Введите файл, куда будет загружено дерево(если вы не хотите этого, то введите N)\n");
+    scanf("%s", answer);
+
+    if ((answer[0] != 'N') || (length((unsigned char*) answer) != 1)){
+
+        my_Akinator.create_base_file(answer);
+    }
 }
 
-void game_with_input(FILE* base){
+void game_with_input(FILE* base){ //надо сделать аргументом название файла
 
     Akinator my_Akinator(base);
 
+    char answer[MAXLEN] = {'!'};
+    my_Akinator.dump();
+    while ((answer[0] != 'n') && (answer[0] != 'N')){
+
+        my_Akinator.guess_and_add();
+        printf("\nWanna continue? [Y/N]\n");
+        scanf("%s", answer);
+    }
 }
 
 
