@@ -1,4 +1,4 @@
- #include <stdio.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include "headers/tree.h"
 
@@ -24,9 +24,15 @@ void game_without_input(){
     }
 }
 
-void game_with_input(FILE* base){ //надо сделать аргументом название файла
+void game_with_input(char* input_name){
+
+    FILE* base = fopen(input_name, "rb");
+    assert(base != NULL);
 
     Akinator my_Akinator(base);
+    unsigned char* tmp = (unsigned char*) calloc(10, sizeof(char));
+    //scanf("%s", tmp);
+    //my_Akinator.show_matches(tmp, NULL);
 
     char answer[MAXLEN] = {'!'};
     my_Akinator.dump();
@@ -36,6 +42,8 @@ void game_with_input(FILE* base){ //надо сделать аргументом
         printf("\nWanna continue? [Y/N]\n");
         scanf("%s", answer);
     }
+    fclose(base); 
+    my_Akinator.create_base_file(input_name);
 }
 
 
@@ -55,15 +63,7 @@ int main(){
         
     } else{
 
-        input_file = fopen(input_name, "rb");
- 
-        if (input_file == NULL){
-
-            printf("Incorrect file name\n");
-        } else{
-
-            game_with_input(input_file);
-        }
+        game_with_input(input_name);
     }
 
     printf("Game over\n");

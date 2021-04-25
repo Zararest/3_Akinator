@@ -82,6 +82,8 @@ public:
 
     void dump();
 
+    void show_matches(unsigned char*, unsigned char*);
+
     void add_to_log(const char*);
 
     void add_to_log(const char*, unsigned char*);

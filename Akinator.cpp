@@ -302,6 +302,36 @@ void print_brunch(int* position_of_line, int number_of_lines, knot* elem){
     }
 }
 
+knot* find_elem(unsigned char* elem, knot* brunch){
+
+    if (brunch != NULL){
+
+        if (strcmp((char*)brunch->data, (char*)elem) == 0){
+
+            return brunch;
+        } else{
+
+            if (find_elem(elem, brunch->R_brunch) != NULL){
+
+                return find_elem(elem, brunch->R_brunch);
+            } else{
+
+                return find_elem(elem, brunch->L_brunch);
+            }
+        }
+    } else{
+
+        return NULL;
+    }
+}
+
+void Akinator::show_matches(unsigned char* fir_elem, unsigned char* sec_elem){
+
+    knot* link_to_fir_elem = find_elem(fir_elem, root);
+
+    printf("|%s|\n", link_to_fir_elem->data);
+}
+
 void Akinator::dump(){
 
     int number_of_lines = 1;
