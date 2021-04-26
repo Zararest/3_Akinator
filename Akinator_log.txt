@@ -1,0 +1,8 @@
+Akinator has been created with input data
+Guess was called:
+-go right
+-go left
+-attempt to guess answer: |n|
+-adding question
+In add question item was added to the left brunch: |9|
+-return |MY_FAULT|

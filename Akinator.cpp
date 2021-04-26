@@ -89,6 +89,10 @@ void Akinator::add_question(knot* old_leaf){
     unsigned char name[MAXLEN] = {'!'};
     unsigned char attribute[MAXLEN] = {'!'};
     unsigned char answer[MAXLEN] = {'!'};
+
+    printf("\nКак зовут твоего персонажа?\n");
+    scanf("%s", name);
+
     printf("\nВведи признак, который отличает твоего персонажа от %s:\n", old_leaf->data);
     scanf("%s", attribute);
 
@@ -96,8 +100,7 @@ void Akinator::add_question(knot* old_leaf){
     printf("[Y/N]\n");
     scanf("%s", answer);
 
-    printf("\nКак зовут твоего персонажа?\n");
-    scanf("%s", name);
+    
 
     assert(old_leaf != NULL);
     if ((answer[0] == 'Y') || (answer[0] == 'y')){
@@ -216,7 +219,7 @@ int Akinator::guess_and_add(){//если да то идем влево
         scanf("%s", answer);
 
         prev_knot = tmp;
-        if ((answer[0] == 'Y') || (answer[0] == 'y')){
+        if ((answer[0] == 'Y') || (answer[0] == 'y')){//добавить в функцию 
 
             tmp = tmp->L_brunch;
             add_to_log("-go left");
@@ -224,8 +227,8 @@ int Akinator::guess_and_add(){//если да то идем влево
 
             if ((answer[0] == 'N') || (answer[0] == 'n')){
 
-                add_to_log("-go right");
                 tmp = tmp->R_brunch;
+                add_to_log("-go right");
             } else{
 
                 printf("\nНеправильный ответ\n");
@@ -272,7 +275,8 @@ int Akinator::guess_and_add(){//если да то идем влево
 
     } else{
 
-        printf("Хз, что ты загадал\n");
+        //printf("Хз, что ты загадал\n");
+        printf("Не знаю такоо прежмета\n");
         add_to_log("-adding leaf with answer:", answer);
         add_leaf(prev_knot, answer[0]);
         return MY_FAULT;
@@ -280,24 +284,39 @@ int Akinator::guess_and_add(){//если да то идем влево
 }
 
 void print_brunch(int* position_of_line, int number_of_lines, knot* elem){
+    
+    int i = 0;
 
     if (elem != NULL){
 
-        for (int i = 0; i < number_of_lines; i++){
+        for (i = 0; i < number_of_lines; i++){
 
-            for (int j = 0; j < position_of_line[i]; j++){
+            for (int j = 0; j < abs(position_of_line[i]); j++){
                 printf(" ");
             }
 
-            printf("|");
+            if (position_of_line[i] > 0){
+
+               printf("|"); 
+            } 
+            
         }
 
-        printf("__");
+        if (position_of_line[i - 1] < 0){
+
+            printf("|__");
+        } else{
+
+            printf("__");
+        }
+        
         printf("%s\n", elem->data);
 
-        position_of_line[number_of_lines] = length(elem->data); 
+        position_of_line[number_of_lines] = length(elem->data) / 2; //надо сделать русскую версию в которой тут будет / 2
 
+        position_of_line[i] = abs(position_of_line[i]);
         print_brunch(position_of_line, number_of_lines + 1, elem->R_brunch);
+        position_of_line[i] = abs(position_of_line[i]) * (-1);
         print_brunch(position_of_line, number_of_lines + 1, elem->L_brunch);
     }
 }
@@ -351,6 +370,7 @@ void Akinator::dump(){
 
     printf("%s\n", root->data);
     print_brunch(position_of_line, number_of_lines, root->R_brunch);
+    position_of_line[0] = position_of_line[0] * (-1);
     print_brunch(position_of_line, number_of_lines, root->L_brunch);
 
     free(position_of_line);

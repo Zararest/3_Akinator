@@ -60,6 +60,8 @@ Tree::Tree(){
 }
 
 
+knot* init_brunch();
+
 Tree::Tree(FILE* base){//для бинарного
 
     assert(base != NULL);
@@ -137,7 +139,7 @@ Tree::Tree(FILE* base){//для бинарного
 
                 word = NULL;
             } else{
-
+                tmp->R_brunch = init_brunch();//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 tmp->R_brunch = (knot*) calloc(1, sizeof(knot));
                 tmp->R_brunch->knot_depth = tmp->knot_depth + 1;
                 tmp->R_brunch->knot_horizontal_position = tmp->knot_horizontal_position + 1;

@@ -42,7 +42,7 @@ public:
 
     void dump_tree();
 
-    void create_base_file(char*);
+    void create_base_file(char*);//добавить название
 
     Tree& operator = (const Tree&) = delete;
 
