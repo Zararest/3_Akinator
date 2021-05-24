@@ -4,6 +4,7 @@
 #define CHECK_LEFTEST if (tmp->knot_horizontal_position < leftest_knot) leftest_knot = tmp->knot_horizontal_position
 #define CHECK_DEEPEST if (tmp->knot_depth > depth) depth = tmp->knot_depth
 
+//------------------Длина строки в байтах(надо переделать на длину в символах)
 int length(unsigned char* line){
 
     assert(line != NULL);
@@ -15,7 +16,9 @@ int length(unsigned char* line){
 
     return i;
 }
+//------------------
 
+//------------------Выделение памяти для строки
 unsigned char* my_memcpy(unsigned char* line){
 
     if (line == NULL){
@@ -39,8 +42,9 @@ unsigned char* my_memcpy(unsigned char* line){
 
     return new_line;
 }
+//------------------
 
-
+//------------------Конструктор дерева без входного файла
 Tree::Tree(){
 
     undef_brunch = (knot*) calloc(1, sizeof(knot));
@@ -58,11 +62,10 @@ Tree::Tree(){
     leftest_knot = 0;
     data_size = 0;
 }
+//------------------
 
-
-knot* init_brunch();
-
-Tree::Tree(FILE* base){//для бинарного
+//------------------Конструктор с входным файлом
+Tree::Tree(FILE* base){
 
     assert(base != NULL);
     undef_brunch = (knot*) calloc(1, sizeof(knot));
@@ -122,10 +125,7 @@ Tree::Tree(FILE* base){//для бинарного
   
         if (l_brn_exist){
 
-            tmp->L_brunch = (knot*) calloc(1, sizeof(knot));
-            tmp->L_brunch->knot_depth = tmp->knot_depth + 1;
-            tmp->L_brunch->knot_horizontal_position = tmp->knot_horizontal_position - 1;
-            tmp->L_brunch->prev = tmp;
+            INIT_L_BRN_DATA(tmp);
             tmp = tmp->L_brunch;
         } else{
 
@@ -139,11 +139,8 @@ Tree::Tree(FILE* base){//для бинарного
 
                 word = NULL;
             } else{
-                tmp->R_brunch = init_brunch();//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                tmp->R_brunch = (knot*) calloc(1, sizeof(knot));
-                tmp->R_brunch->knot_depth = tmp->knot_depth + 1;
-                tmp->R_brunch->knot_horizontal_position = tmp->knot_horizontal_position + 1;
-                tmp->R_brunch->prev = tmp;
+
+                INIT_R_BRN_DATA(tmp);
                 tmp = tmp->R_brunch;
             }
         }
@@ -153,7 +150,9 @@ Tree::Tree(FILE* base){//для бинарного
     free(undef_brunch);
     free(buffer);
 }
+//------------------
 
+//------------------рекурсивная простая распечатка 
 void print_knot(knot* tmp){
 
     if (tmp != NULL){
@@ -169,8 +168,9 @@ void Tree::dump_tree(){
     printf("Dumped tree: *name*[horizontal_position][depth]\n");
     print_knot(root);
 }
+//------------------
 
-
+//------------------Рекурсивная запись данных в файл
 void add_to_file(knot* tmp, FILE* output){
 
     if (tmp != NULL){
@@ -207,7 +207,9 @@ void Tree::create_base_file(char* name_of_file){
 
     fclose(output);
 }
+//------------------
 
+//------------------Рекурсивный деструктор
 void delete_knot(knot* tmp){
 
     if (tmp != NULL){
@@ -224,3 +226,4 @@ Tree::~Tree(){
 
     delete_knot(root);
 }
+//------------------

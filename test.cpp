@@ -31,16 +31,16 @@ int main(){
     scanf("%s", tmp);
     printf("%s", strtok((char*)tmp, "|"));*/
 
-    Array<int> tmp_arr(10);
+    //Array<int> tmp_arr(10);
 
-    tmp_arr.push(12);
+    //tmp_arr.push(12);
     //printf("tmp pop = %i\n", tmp_arr.pop());
 
-    Array<int> second_arr(10);
+    //Array<int> second_arr(10);
 
     //second_arr = tmp_arr;
 
     //printf("second pop = %i\n", second_arr.pop());
 
-    //printf("'A' = %i 'Z' = %i\n", 'A', 'Z');
+    printf("'A' = %i 'Z' = %i  'a' = %i 'z' = %i\n", 'A', 'Z', 'a', 'z');
 }

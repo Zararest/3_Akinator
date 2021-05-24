@@ -1,19 +1,6 @@
 #include "headers/tree.h"
 
-#define INIT_L_BRN_DATA(tmp) tmp->L_brunch = (knot*) calloc(1, sizeof(knot));\
-                             tmp->L_brunch->knot_depth = tmp->knot_depth + 1;\
-                             tmp->L_brunch->knot_horizontal_position = tmp->knot_horizontal_position - 1;\
-                             tmp->L_brunch->prev = tmp;\
-                             tmp->L_brunch->L_brunch = NULL;\
-                             tmp->L_brunch->R_brunch = NULL;\
-
-#define INIT_R_BRN_DATA(tmp) tmp->R_brunch = (knot*) calloc(1, sizeof(knot));\
-                             tmp->R_brunch->knot_depth = tmp->knot_depth + 1;\
-                             tmp->R_brunch->knot_horizontal_position = tmp->knot_horizontal_position + 1;\
-                             tmp->R_brunch->prev = tmp;\
-                             tmp->R_brunch->L_brunch = NULL;\
-                             tmp->R_brunch->R_brunch = NULL;\
-                            
+//------------------Конструктор без входного файла(вызывает конструктор дерева)               
 Akinator::Akinator():Tree(){
 
     setlocale(LC_ALL, "Russian");
@@ -23,8 +10,9 @@ Akinator::Akinator():Tree(){
     fprintf(log, "akinator construct was called\n");
     //log = stdout;
 }
+//------------------
 
-
+//------------------Конструктор с входным файлом
 Akinator::Akinator(FILE* base):Tree(base) {
 
     log = fopen("Akinator_log.txt", "w");
@@ -32,26 +20,28 @@ Akinator::Akinator(FILE* base):Tree(base) {
     //log = stdout;
     add_to_log("Akinator has been created with input data");
 }
+//------------------
 
-
+//------------------Добавление сооьщения в лог дерева
 void Akinator::add_to_log(const char* line){
 
     fprintf(log, "%s\n", line);
 }
 
-
 void Akinator::add_to_log(const char* line, unsigned char* name){
 
     fprintf(log, "%s |%s|\n", line, name);
 }
+//------------------
 
-
+//------------------Деструктор(вроде должен вызываться деструктор материнского класса)
 Akinator::~Akinator(){
 
     fclose(log);
 }
+//------------------
 
-
+//------------------Добавление предмета
 void Akinator::add_leaf(knot* old_leaf, unsigned char answer){
 
     unsigned char name[MAXLEN] = {'!'};
@@ -80,10 +70,10 @@ void Akinator::add_leaf(knot* old_leaf, unsigned char answer){
 
         add_to_log("In add leaf item was added to the right brunch:", old_leaf->R_brunch->data);
     }
-    
 }
+//------------------
 
-
+//------------------Добавление вопроса и ответа
 void Akinator::add_question(knot* old_leaf){
     
     unsigned char name[MAXLEN] = {'!'};
@@ -99,8 +89,6 @@ void Akinator::add_question(knot* old_leaf){
     printf("\nТвой персонаж отвечает этому признаку? ");
     printf("[Y/N]\n");
     scanf("%s", answer);
-
-    
 
     assert(old_leaf != NULL);
     if ((answer[0] == 'Y') || (answer[0] == 'y')){
@@ -147,8 +135,9 @@ void Akinator::add_question(knot* old_leaf){
         }
     }
 }
+//------------------
 
-
+//------------------Добавление первых данных в пустое дерево
 void Akinator::init_data(){
 
     unsigned char fir_attribute[MAXLEN] = {'!'};
@@ -194,7 +183,9 @@ void Akinator::init_data(){
         }
     }
 }
+//------------------
 
+//------------------Угадывание и добавление в дерево
 int Akinator::guess_and_add(){//если да то идем влево
 
     add_to_log("Guess was called:");
@@ -246,7 +237,7 @@ int Akinator::guess_and_add(){//если да то идем влево
 
     if (tmp != NULL){
 
-        printf("\nЭто %s?\n", tmp->data);
+        printf("\nЭто %s?", tmp->data);
         printf("[Y/N]?\n");
         scanf("%s", answer);
 
@@ -282,7 +273,9 @@ int Akinator::guess_and_add(){//если да то идем влево
         return MY_FAULT;
     }
 }
+//------------------
 
+//------------------Красивый рекурсивный дамп
 void print_brunch(int* position_of_line, int number_of_lines, knot* elem){
     
     int i = 0;
@@ -321,6 +314,33 @@ void print_brunch(int* position_of_line, int number_of_lines, knot* elem){
     }
 }
 
+void Akinator::dump(){
+
+    int number_of_lines = 1;
+    int* position_of_line = (int*) calloc(depth + 1, sizeof(int));
+    position_of_line[0] = length(root->data);
+
+    printf("\nDump of tree:\n");
+    printf("--structure of dump--\n");
+    printf("root\n");
+    printf("    |__(NO brunch)\n");
+    printf("    |            |\n");
+    printf("   ...          ...\n");
+    printf("    |__(YES brunch)\n");
+    printf("                  |\n");
+    printf("                 ...\n");
+    printf("---------------------\n");
+
+    printf("%s\n", root->data);
+    print_brunch(position_of_line, number_of_lines, root->R_brunch);
+    position_of_line[0] = position_of_line[0] * (-1);
+    print_brunch(position_of_line, number_of_lines, root->L_brunch);
+
+    free(position_of_line);
+}
+//------------------
+
+//------------------Вывод сходств и различий
 knot* find_elem(unsigned char* elem, knot* brunch){
 
     if (brunch != NULL){
@@ -347,31 +367,54 @@ knot* find_elem(unsigned char* elem, knot* brunch){
 void Akinator::show_matches(unsigned char* fir_elem, unsigned char* sec_elem){
 
     knot* link_to_fir_elem = find_elem(fir_elem, root);
+    knot* link_to_sec_elem = find_elem(sec_elem, root);
+    assert(link_to_fir_elem != NULL);
+    assert(link_to_sec_elem != NULL);
 
-    printf("|%s|\n", link_to_fir_elem->data);
+    while (link_to_fir_elem->knot_depth != link_to_sec_elem->knot_depth){
+
+        if(link_to_fir_elem->knot_depth > link_to_sec_elem->knot_depth){
+
+            link_to_fir_elem = link_to_fir_elem->prev;
+        } else{
+
+            link_to_sec_elem = link_to_sec_elem->prev;
+        }
+    }
+
+    while (link_to_fir_elem->prev != link_to_sec_elem->prev){
+
+        assert(link_to_fir_elem->prev != NULL);
+        assert(link_to_sec_elem->prev != NULL);
+        link_to_fir_elem = link_to_fir_elem->prev;
+        link_to_sec_elem = link_to_sec_elem->prev;
+    }
+
+    if (link_to_fir_elem->prev == root){
+
+        if (link_to_fir_elem->knot_horizontal_position > link_to_sec_elem->knot_horizontal_position){
+
+            unsigned char* tmp = fir_elem;
+            fir_elem = sec_elem;
+            sec_elem = tmp;            
+        }
+        printf("Персонажи %s и %s не имеют общих черт,", fir_elem, sec_elem);
+        printf("но различаются тем, что %s имеет признак %s, а %s нет\n", fir_elem, link_to_fir_elem->prev->data, sec_elem);
+    } else{
+        
+        int sent_has_and = 0;
+        printf("Персонаж %s похож на %s тем, что каждый из них", fir_elem, sec_elem);
+
+        while (link_to_sec_elem->prev != root){
+
+            printf("%s, ", link_to_sec_elem->data);
+            sent_has_and = 1;
+        }
+
+        if (sent_has_and == 1){
+
+            printf(" и "); ///!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!дописать
+        }
+    }
 }
-
-void Akinator::dump(){
-
-    int number_of_lines = 1;
-    int* position_of_line = (int*) calloc(depth + 1, sizeof(int));
-    position_of_line[0] = length(root->data);
-
-    printf("\nDump of tree:\n");
-    printf("--structure of dump--\n");
-    printf("root\n");
-    printf("    |__(NO brunch)\n");
-    printf("    |            |\n");
-    printf("   ...          ...\n");
-    printf("    |__(YES brunch)\n");
-    printf("                  |\n");
-    printf("                 ...\n");
-    printf("---------------------\n");
-
-    printf("%s\n", root->data);
-    print_brunch(position_of_line, number_of_lines, root->R_brunch);
-    position_of_line[0] = position_of_line[0] * (-1);
-    print_brunch(position_of_line, number_of_lines, root->L_brunch);
-
-    free(position_of_line);
-}
+//------------------

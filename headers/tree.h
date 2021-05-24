@@ -10,6 +10,21 @@
 #include <cassert>
 
 #define MAXLEN 100
+
+#define INIT_L_BRN_DATA(tmp) tmp->L_brunch = (knot*) calloc(1, sizeof(knot));\
+                             tmp->L_brunch->knot_depth = tmp->knot_depth + 1;\
+                             tmp->L_brunch->knot_horizontal_position = tmp->knot_horizontal_position - 1;\
+                             tmp->L_brunch->prev = tmp;\
+                             tmp->L_brunch->L_brunch = NULL;\
+                             tmp->L_brunch->R_brunch = NULL;\
+
+#define INIT_R_BRN_DATA(tmp) tmp->R_brunch = (knot*) calloc(1, sizeof(knot));\
+                             tmp->R_brunch->knot_depth = tmp->knot_depth + 1;\
+                             tmp->R_brunch->knot_horizontal_position = tmp->knot_horizontal_position + 1;\
+                             tmp->R_brunch->prev = tmp;\
+                             tmp->R_brunch->L_brunch = NULL;\
+                             tmp->R_brunch->R_brunch = NULL;\
+
 enum Akinators_code{
 
     MY_WIN = 0,
