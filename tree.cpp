@@ -1,20 +1,17 @@
 #include "headers/tree.h"
 
-#define CHECK_RIGHTEST if (tmp->knot_horizontal_position > rightest_knot) rightest_knot = tmp->knot_horizontal_position 
-#define CHECK_LEFTEST if (tmp->knot_horizontal_position < leftest_knot) leftest_knot = tmp->knot_horizontal_position
-#define CHECK_DEEPEST if (tmp->knot_depth > depth) depth = tmp->knot_depth
-
 //------------------Длина строки в байтах(надо переделать на длину в символах)
 int length(unsigned char* line){
 
     assert(line != NULL);
-    int i = 0;
+    int i = 0, len = 0;
     while (line[i] != '\0'){
 
-        i++;
+        len++;
+        i += 1 + ((line[i] & 0x80) == 128); 
     }
 
-    return i;
+    return len;
 }
 //------------------
 
@@ -27,8 +24,6 @@ unsigned char* my_memcpy(unsigned char* line){
 
     int len = 0;
     unsigned char* new_line = NULL;
-
-    
 
     while (line[len] != '\0'){
         len++;
@@ -152,7 +147,7 @@ Tree::Tree(FILE* base){
 }
 //------------------
 
-//------------------рекурсивная простая распечатка 
+//------------------Рекурсивная простая распечатка 
 void print_knot(knot* tmp){
 
     if (tmp != NULL){
