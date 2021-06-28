@@ -52,7 +52,8 @@ void print_file(char* name){
     while (symbol != EOF){
 
         printf("%c", symbol);
-        fscanf(file, "%c", &symbol);
+        //fscanf(file, "%c", &symbol);
+        
     }
 }
 
@@ -312,6 +313,7 @@ void Akinator::debug(){
     char word[MAXLEN] = {'!'};
     unsigned char first_elem[MAXLEN] = {'!'};
     unsigned char second_elem[MAXLEN] = {'!'};
+    int right_command = 0;
 
     printf("\n_______________________________");
     printf("_________________________________");
@@ -326,6 +328,7 @@ void Akinator::debug(){
         if (strcmp(word, "info") == 0){
 
             print_file("instructions.txt");
+            right_command = 1;
         }
 
         if (strcmp(word, "show") == 0){
@@ -361,6 +364,8 @@ void Akinator::debug(){
                     printf("Can't find such an element\n");
                 }
             }
+
+            right_command = 1;
         }
 
         if (strcmp(word, "select") == 0){
@@ -375,8 +380,15 @@ void Akinator::debug(){
                 printf("Can't find elem %s\n", first_elem);
             }
             
+            right_command = 1;
         }
 
+        if (right_command == 0){
+
+            printf("Strange command\n");
+        }
+
+        right_command = 0;
         scanf("%s", word);
     }
 }
@@ -722,10 +734,16 @@ void Akinator::show_matches(unsigned char* fir_elem, unsigned char* sec_elem){
     knot* link_to_fir_elem = find_elem(fir_elem, root);
     knot* link_to_sec_elem = find_elem(sec_elem, root);
 
-    if ((link_to_fir_elem == NULL) || (link_to_sec_elem == NULL)){
+    if ((link_to_fir_elem == NULL) || (link_to_sec_elem == NULL) || (link_to_fir_elem == link_to_sec_elem)){
 
-        printf("Can't find such elements\n");
+        if ((link_to_fir_elem == link_to_sec_elem) && (link_to_fir_elem != NULL)){
 
+            printf("Элементы одинаковые\n");
+        } else{
+
+            printf("Can't find such elements\n");
+        }
+        
     } else{
 
         while (link_to_fir_elem->knot_depth != link_to_sec_elem->knot_depth){
@@ -754,11 +772,17 @@ void Akinator::show_matches(unsigned char* fir_elem, unsigned char* sec_elem){
                 sec_elem = tmp;            
         }
 
-        if (link_to_fir_elem->prev == root){
+        if ((link_to_fir_elem->prev == root) || (link_to_fir_elem == root)){
 
+            if (link_to_fir_elem->prev == root){
+
+                printf("Персонажи %s и %s не имеют общих черт,", fir_elem, sec_elem);
+                printf("но различаются тем, что %s имеет признак %s, а %s нет\n", fir_elem, link_to_fir_elem->prev->data, sec_elem);
+            } else{
+
+                printf("Один из элементов это корень\n");
+            }
             
-            printf("Персонажи %s и %s не имеют общих черт,", fir_elem, sec_elem);
-            printf("но различаются тем, что %s имеет признак %s, а %s нет\n", fir_elem, link_to_fir_elem->prev->data, sec_elem);
         } else{ 
         
             printf("Персонаж %s похож на %s тем, что каждый из них: ", fir_elem, sec_elem);
