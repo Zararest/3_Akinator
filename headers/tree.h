@@ -103,7 +103,7 @@ public:
 
     int guess_and_add();
 
-    int find_answer(char*);
+    int find_answer(const char*);
 
     void init_data();
 

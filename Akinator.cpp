@@ -42,7 +42,7 @@ Akinator::~Akinator(){
 //------------------
 
 //------------------Команды режима debug
-void print_file(char* name){
+void print_file(const char* name){
 
     char symbol = '!';
     FILE* file = fopen(name, "r");
@@ -52,8 +52,7 @@ void print_file(char* name){
     while (symbol != EOF){
 
         printf("%c", symbol);
-        //fscanf(file, "%c", &symbol);
-        
+        symbol = fgetc(file);
     }
 }
 
@@ -104,7 +103,7 @@ void Akinator::print_path(knot* last_elem){
         printf("%s --> NULL\n", stack_of_elem[size_of_stack - 1]->data);
     } else{
 
-        printf("...\n", stack_of_elem[size_of_stack - 1]->data);
+        printf("...\n");
     }
     
     free(stack_of_elem);
@@ -395,12 +394,11 @@ void Akinator::debug(){
 //------------------
 
 //------------------Задание вопроса
-int Akinator::find_answer(char* question){
+int Akinator::find_answer(const char* question){
 
     unsigned char answer[MAXLEN] = {'!'};
     printf("%s?\n", question);
     
-
     while (NULL != 10){
 
         printf("[Y/N]\n");
@@ -475,9 +473,6 @@ void Akinator::add_question(knot* old_leaf){
     printf("\nВведи признак, который отличает твоего персонажа от %s:\n", old_leaf->data);
     scanf("%s", attribute);
 
-    /*printf("\nТвой персонаж отвечает этому признаку? ");
-    printf("[Y/N]\n");
-    scanf("%s", answer);*/
     answer = find_answer("\nТвой персонаж отвечает этому признаку");
 
     assert(old_leaf != NULL);
@@ -586,14 +581,11 @@ int Akinator::guess_and_add(){//если да то идем влево
 
     while ( tmp_has_brn && (tmp != NULL)){
 
-        /*printf("\nВаш персонаж %s? ", tmp->data);
-        printf("[Y/N]?\n");
-        scanf("%s", answer);*/
         printf("\nВаш персонаж ");
         answer = find_answer((char*)tmp->data);
 
         prev_knot = tmp;
-        if (answer == YES){//добавить в функцию 
+        if (answer == YES){
 
             tmp = tmp->L_brunch;
             add_to_log("-go left");
@@ -617,10 +609,6 @@ int Akinator::guess_and_add(){//если да то идем влево
 
     if (tmp != NULL){
 
-        /*printf("\nЭто %s?", tmp->data);
-        printf("[Y/N]?\n");
-        scanf("%s", answer);*/
-
         printf("\nЭто ");
         answer = find_answer((char*)tmp->data);
 
@@ -641,8 +629,7 @@ int Akinator::guess_and_add(){//если да то идем влево
 
     } else{
 
-        //printf("Хз, что ты загадал\n");
-        printf("Не знаю такоо прежмета\n");
+        printf("Не знаю такого предмета\n");
         add_leaf(prev_knot, answer);
         return MY_FAULT;
     }
