@@ -1,5 +1,4 @@
 Проверка README
-
 first_elem
          |
          |______left_elem
