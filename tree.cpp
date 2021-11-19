@@ -1,5 +1,6 @@
 #include "headers/tree.h"
 
+// TODO: переместить функцию в другой файл -- сделать либу для текста
 //------------------Длина строки в байтах(надо переделать на длину в символах)
 int length(unsigned char* line){
 
@@ -15,6 +16,7 @@ int length(unsigned char* line){
 }
 //------------------
 
+// TODO: тож в другой файл
 //------------------Выделение памяти для строки
 unsigned char* my_memcpy(unsigned char* line){
 
@@ -39,6 +41,7 @@ unsigned char* my_memcpy(unsigned char* line){
 }
 //------------------
 
+// TODO: переделать документацию на doxygen
 //------------------Конструктор дерева без входного файла
 Tree::Tree(){
 

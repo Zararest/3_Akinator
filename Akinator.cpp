@@ -70,6 +70,7 @@ void dump_file(){
     tmp_Akinator.dump();
 }
 
+// TODO: graphviz
 void Akinator::print_path(knot* last_elem){
     
     int size_of_stack = last_elem->knot_depth + 1;
@@ -399,6 +400,7 @@ int Akinator::find_answer(const char* question){
     unsigned char answer[MAXLEN] = {'!'};
     printf("%s?\n", question);
     
+    // TODO: что это?
     while (NULL != 10){
 
         printf("[Y/N]\n");
@@ -565,6 +567,7 @@ void Akinator::init_data(){
 int Akinator::guess_and_add(){//если да то идем влево
 
     add_to_log("Guess was called:");
+    // TODO: странное название tmp
     knot* tmp = root;
     knot* prev_knot = tmp;
     int answer = -1;
@@ -668,6 +671,7 @@ void print_brunch(int* position_of_line, int number_of_lines, knot* elem){
 
         position_of_line[number_of_lines] = length(elem->data); 
 
+        // TODO: что вообще эта штука делает? ....
         position_of_line[i] = abs(position_of_line[i]);
         print_brunch(position_of_line, number_of_lines + 1, elem->R_brunch);
         position_of_line[i] = abs(position_of_line[i]) * (-1);

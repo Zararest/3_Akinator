@@ -3,6 +3,7 @@
 #ifndef TREE
 #define TREE
 
+// TODO: перекинуть максимальное число инклюдов в cpp файлы
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -12,6 +13,7 @@
 
 #define MAXLEN 100
 
+// TODO: написать функцию
 #define INIT_L_BRN_DATA(tmp) tmp->L_brunch = (knot*) calloc(1, sizeof(knot));\
                              tmp->L_brunch->knot_depth = tmp->knot_depth + 1;\
                              tmp->L_brunch->knot_horizontal_position = tmp->knot_horizontal_position - 1;\
@@ -44,6 +46,7 @@ enum Answers{
     DEBUG = 2,
 };
 
+// TODO remove typedef
 typedef struct knot_struct{
 
     unsigned char* data;
@@ -63,8 +66,10 @@ class Tree{
 
 public:
     
+    // TODO: copy-ctor, move-ctor, operator = , movable operator =
     Tree();
 
+    // TODO: где названия пременных?
     Tree(FILE*);
 
     ~Tree();
