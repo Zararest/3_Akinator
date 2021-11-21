@@ -8,16 +8,16 @@ Akinator::Akinator():Tree(){
 
     setlocale(LC_ALL, "Russian");
     
-    log = fopen("Akinator_log.txt", "w");
+    log = fopen("../bin/Akinator_log.txt", "w");
     assert(log != nullptr);
     fprintf(log, "akinator construct was called\n");
 }
 //------------------
 
 //------------------Конструктор с входным файлом
-Akinator::Akinator(FILE* base):Tree(base) {
+Akinator::Akinator(FILE* base): Tree(base) {
 
-    log = fopen("Akinator_log.txt", "w");
+    log = fopen("../bin/Akinator_log.txt", "w");
     assert(log != nullptr);
     add_to_log("Akinator has been created with input data");
 }
@@ -322,6 +322,7 @@ void print_brunch(int* position_of_line, int number_of_lines, knot* cur_knot){
             printf("__");
         }
         
+        assert(cur_knot->data != nullptr);
         printf("%s\n", cur_knot->data);
 
         position_of_line[number_of_lines] = length(cur_knot->data); 
@@ -335,16 +336,24 @@ void print_brunch(int* position_of_line, int number_of_lines, knot* cur_knot){
 
 void Akinator::dump(){
 
+    assert(root != nullptr);
+
+
     int number_of_lines = 1;
     int* position_of_line = new int[depth + 1];
     position_of_line[0] = length(root->data);
 
     printf("\nDump of tree:\n");
-    printf("%s\n", root->data);
+    if (root-> data != nullptr){
 
-    print_brunch(position_of_line, number_of_lines, root->R_brunch);
-    position_of_line[0] = position_of_line[0] * (-1);
-    print_brunch(position_of_line, number_of_lines, root->L_brunch);
+        printf("%s\n", root->data);
+        print_brunch(position_of_line, number_of_lines, root->R_brunch);
+        position_of_line[0] = position_of_line[0] * (-1);
+        print_brunch(position_of_line, number_of_lines, root->L_brunch);
+    } else{
+
+        printf("nothing\n");
+    }
 
     delete[] position_of_line;
 }

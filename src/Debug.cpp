@@ -58,11 +58,13 @@ struct Names_satck{
 
     void push(int index, knot* new_knot){
 
+        assert((size - index >= 0) && (size - index < size));
         knots[size - index] = new_knot;
     }
 
     bool if_left_branch(int index){
 
+        assert((index >= 0) && (index < size));
         if (knots[index]->L_brunch == knots[index + 1]){
 
             return true;
@@ -74,11 +76,13 @@ struct Names_satck{
 
     unsigned char* get_name(int index){
 
+        assert((index >= 0) && (index < size));
         return knots[index]->data;
     }
 
     bool is_leaf(int index){
 
+        assert((index >= 0) && (index < size));
         if ((knots[index]->L_brunch == nullptr) && (knots[index]->R_brunch == nullptr)){
 
             return true;
@@ -87,20 +91,26 @@ struct Names_satck{
             return false;
         }
     }
+
+    void destroy(){
+
+        delete[] knots;
+    }
 };
 
 void Akinator::print_path(knot* last_elem){
     
+    assert(last_elem != nullptr);
+
     int size_of_stack = last_elem->knot_depth + 1;
     int i = 1;
     Names_satck stack = { new knot*[size_of_stack], size_of_stack };
-
-    knot** stack_of_elem = (knot**) calloc(size_of_stack, sizeof(knot*));
     knot* cur_knot = last_elem;
     
     while (cur_knot != root){
 
         stack.push(i, cur_knot);
+        cur_knot = cur_knot->prev;
         i++;
     }
     stack.push(size_of_stack, root);
@@ -118,13 +128,14 @@ void Akinator::print_path(knot* last_elem){
     }
     
     if (stack.is_leaf(size_of_stack - 1)){
-        
-        printf("%s --> nullptr\n", stack_of_elem[size_of_stack - 1]->data);
+
+        assert(stack.knots[size_of_stack - 1]->data != nullptr);
+        printf("%s --> nullptr\n", stack.get_name(size_of_stack - 1));
     } else{
         printf("...\n");
     }
     
-    free(stack_of_elem);
+    stack.destroy();
 }
 
 void Akinator::fix_knots_positions(knot* tmp, int cur_depth, int cur_hor_position){
@@ -135,7 +146,7 @@ void Akinator::fix_knots_positions(knot* tmp, int cur_depth, int cur_hor_positio
         tmp->knot_horizontal_position = cur_hor_position;
         
         fix_knots_positions(tmp->R_brunch, cur_depth + 1, cur_hor_position + 1);
-        fix_knots_positions(tmp->R_brunch, cur_depth + 1, cur_hor_position - 1);
+        fix_knots_positions(tmp->L_brunch, cur_depth + 1, cur_hor_position - 1);
 
         if (tmp->knot_horizontal_position > rightest_knot) rightest_knot = tmp->knot_horizontal_position ;
         if (tmp->knot_horizontal_position < leftest_knot) leftest_knot = tmp->knot_horizontal_position;
@@ -261,25 +272,27 @@ void Akinator::debug_merge(int& loop_status, knot* cur_elem, FILE* second_tree){
         if (tmp_Akinator.root->data == nullptr){
             
             printf("\tSecond tree is empty\n");
-        }
+        } else{
 
-        if ((strcmp((char*)tmp_Akinator.root->data, (char*)cur_elem->data) == 0)
+            if ((strcmp((char*)tmp_Akinator.root->data, (char*)cur_elem->data) == 0)
             && (cur_elem->L_brunch == nullptr) 
             && (cur_elem->R_brunch == nullptr)){
 
-            cur_elem->R_brunch = tmp_Akinator.root->R_brunch;
-            cur_elem->L_brunch = tmp_Akinator.root->L_brunch;
-            cur_elem->R_brunch->prev = cur_elem;
-            cur_elem->L_brunch->prev = cur_elem;
+                cur_elem->R_brunch = tmp_Akinator.root->R_brunch;
+                cur_elem->L_brunch = tmp_Akinator.root->L_brunch;
+                cur_elem->R_brunch->prev = cur_elem;
+                cur_elem->L_brunch->prev = cur_elem;
 
-            fix_knots_positions(cur_elem, cur_elem->knot_depth, cur_elem->knot_horizontal_position);
+                data_size += tmp_Akinator.data_size;
+                fix_knots_positions(root, 0, 0);
 
-            delete tmp_Akinator.root->data;
-            tmp_Akinator.root = nullptr;
+                delete tmp_Akinator.root->data;
+                tmp_Akinator.root = nullptr;
 
-        } else{
+            } else{
 
-            printf("\tElemnts don't fit\n");
+                printf("\tElemnts don't fit\n");
+            }
         }
 
         loop_status = Next_loop_itter;
@@ -388,7 +401,7 @@ void Akinator::debug_show(int& loop_status){
         }
     }
 
-    loop_status = 1;
+    loop_status = Next_loop_itter;
 }
 
 void Akinator::debug(){
@@ -410,8 +423,8 @@ void Akinator::debug(){
 
         if (strcmp(word, "info") == 0){
 
-            print_file("instructions.txt");
-            loop_status = 1;
+            print_file("../bin/instructions.txt");
+            loop_status = Next_loop_itter;
         }
 
         if (strcmp(word, "show") == 0){
@@ -434,7 +447,7 @@ void Akinator::debug(){
             loop_status = Next_loop_itter;
         }
 
-        if (strcmp(word, "stop")){
+        if (strcmp(word, "stop") == 0){
 
             loop_status = Drop_knot;
         }
@@ -447,8 +460,10 @@ void Akinator::debug(){
         if (loop_status == Next_loop_itter){
 
             loop_status = Init_status;
-            scanf("%s", word);
+            
         }
+        
+        scanf("%s", word);
     }
 }
 

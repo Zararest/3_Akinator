@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <cstring>
-#include <cassert>
 #include "headers/Akinator.hpp"
 
 void game_without_input(){
@@ -29,7 +28,14 @@ void game_without_input(){
 void game_with_input(char* input_name){
 
     FILE* base = fopen(input_name, "rb");
-    assert(base != nullptr);
+    
+    if (base == nullptr){
+
+        printf("Файл не может быть открыт. Игра запущена без базы с персонажами\n");
+        game_without_input();
+        printf("Game over\n");
+        exit(0);
+    }
 
     Akinator my_Akinator(base);
     char answer[MAXLEN] = {'!'};
@@ -58,7 +64,6 @@ int main(){
     if ((input_name[0] == 'N') && (length((unsigned char*) input_name) == 1)){
 
         game_without_input();
-        
     } else{
 
         game_with_input(input_name);

@@ -21,7 +21,8 @@ void init_R_brn_data(knot* tmp){
 
 int length(unsigned char* line){
 
-    assert(line != nullptr);
+    if (line == nullptr){ return 0; }
+
     int i = 0, len = 0;
     while (line[i] != '\0'){
 
@@ -93,7 +94,6 @@ void Tree::init_knot(knot*& cur_knot, bool l_brn_exist, bool r_brn_exist, knot* 
         }
     }
 }
-
 
 Tree::Tree(FILE* base){
 
