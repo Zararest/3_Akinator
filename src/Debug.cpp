@@ -1,4 +1,4 @@
-#include "headers/Akinator.hpp"
+#include "headers/Tree.hpp"
 #include <unistd.h>
 #include <fcntl.h>
 #include <stdio.h>
@@ -47,64 +47,17 @@ void dump_file(){
     FILE* base = fopen(name, "rb");
     assert(base != nullptr);
 
-    Akinator tmp_Akinator(base);
-    tmp_Akinator.dump();
+    Tree tmp_tree(base);
+    tmp_tree.dump();
 }
 
-struct Names_satck{
-
-    knot** knots = nullptr;
-    int size = 0;
-
-    void push(int index, knot* new_knot){
-
-        assert((size - index >= 0) && (size - index < size));
-        knots[size - index] = new_knot;
-    }
-
-    bool if_left_branch(int index){
-
-        assert((index >= 0) && (index < size));
-        if (knots[index]->L_brunch == knots[index + 1]){
-
-            return true;
-        } else{
-
-            return false;
-        }
-    }
-
-    unsigned char* get_name(int index){
-
-        assert((index >= 0) && (index < size));
-        return knots[index]->data;
-    }
-
-    bool is_leaf(int index){
-
-        assert((index >= 0) && (index < size));
-        if ((knots[index]->L_brunch == nullptr) && (knots[index]->R_brunch == nullptr)){
-
-            return true;
-        } else{
-
-            return false;
-        }
-    }
-
-    void destroy(){
-
-        delete[] knots;
-    }
-};
-
-void Akinator::print_path(knot* last_elem){
+void Tree::print_path(knot* last_elem){
     
     assert(last_elem != nullptr);
 
     int size_of_stack = last_elem->knot_depth + 1;
     int i = 1;
-    Names_satck stack = { new knot*[size_of_stack], size_of_stack };
+    Names_stack stack = { new knot*[size_of_stack], size_of_stack };
     knot* cur_knot = last_elem;
     
     while (cur_knot != root){
@@ -138,23 +91,23 @@ void Akinator::print_path(knot* last_elem){
     stack.destroy();
 }
 
-void Akinator::fix_knots_positions(knot* tmp, int cur_depth, int cur_hor_position){
+void Tree::fix_knots_positions(knot* cur_knot, int cur_depth, int cur_hor_position){
 
-    if (tmp != nullptr){
+    if (cur_knot != nullptr){
 
-        tmp->knot_depth = cur_depth;
-        tmp->knot_horizontal_position = cur_hor_position;
+        cur_knot->knot_depth = cur_depth;
+        cur_knot->knot_horizontal_position = cur_hor_position;
         
-        fix_knots_positions(tmp->R_brunch, cur_depth + 1, cur_hor_position + 1);
-        fix_knots_positions(tmp->L_brunch, cur_depth + 1, cur_hor_position - 1);
+        fix_knots_positions(cur_knot->R_brunch, cur_depth + 1, cur_hor_position + 1);
+        fix_knots_positions(cur_knot->L_brunch, cur_depth + 1, cur_hor_position - 1);
 
-        if (tmp->knot_horizontal_position > rightest_knot) rightest_knot = tmp->knot_horizontal_position ;
-        if (tmp->knot_horizontal_position < leftest_knot) leftest_knot = tmp->knot_horizontal_position;
-        if (tmp->knot_depth > depth) depth = tmp->knot_depth;
+        if (cur_knot->knot_horizontal_position > rightest_knot){ rightest_knot = cur_knot->knot_horizontal_position; }
+        if (cur_knot->knot_horizontal_position < leftest_knot){ leftest_knot = cur_knot->knot_horizontal_position; }
+        if (cur_knot->knot_depth > depth){ depth = cur_knot->knot_depth; }
     }
 }
 
-void Akinator::debug_add(int& loop_status, knot* cur_elem){
+void Tree::debug_add(int& loop_status, knot* cur_elem){
 
     char word[MAXLEN] = {'!'};
     unsigned char first_elem[MAXLEN] = {'!'};
@@ -238,7 +191,7 @@ void Akinator::debug_add(int& loop_status, knot* cur_elem){
     }
 }
 
-void Akinator::debug_delete(int& loop_status, knot* cur_elem){
+void Tree::debug_delete(int& loop_status, knot* cur_elem){
 
     if  ((cur_elem->R_brunch == nullptr) && (cur_elem->L_brunch == nullptr)){
 
@@ -263,31 +216,31 @@ void Akinator::debug_delete(int& loop_status, knot* cur_elem){
     }
 }
 
-void Akinator::debug_merge(int& loop_status, knot* cur_elem, FILE* second_tree){
+void Tree::debug_merge(int& loop_status, knot* cur_elem, FILE* second_tree){
 
     if (second_tree != nullptr){
                 
-        Akinator tmp_Akinator(second_tree);
+        Tree tmp_tree(second_tree);
 
-        if (tmp_Akinator.root->data == nullptr){
+        if (tmp_tree.root->data == nullptr){
             
             printf("\tSecond tree is empty\n");
         } else{
 
-            if ((strcmp((char*)tmp_Akinator.root->data, (char*)cur_elem->data) == 0)
+            if ((strcmp((char*)tmp_tree.root->data, (char*)cur_elem->data) == 0)
             && (cur_elem->L_brunch == nullptr) 
             && (cur_elem->R_brunch == nullptr)){
 
-                cur_elem->R_brunch = tmp_Akinator.root->R_brunch;
-                cur_elem->L_brunch = tmp_Akinator.root->L_brunch;
+                cur_elem->R_brunch = tmp_tree.root->R_brunch;
+                cur_elem->L_brunch = tmp_tree.root->L_brunch;
                 cur_elem->R_brunch->prev = cur_elem;
                 cur_elem->L_brunch->prev = cur_elem;
 
-                data_size += tmp_Akinator.data_size;
+                data_size += tmp_tree.data_size;
                 fix_knots_positions(root, 0, 0);
 
-                delete tmp_Akinator.root->data;
-                tmp_Akinator.root = nullptr;
+                delete tmp_tree.root->data;
+                tmp_tree.root = nullptr;
 
             } else{
 
@@ -303,7 +256,7 @@ void Akinator::debug_merge(int& loop_status, knot* cur_elem, FILE* second_tree){
     }
 }
 
-void Akinator::selected_elem(knot* cur_elem){
+void Tree::selected_elem(knot* cur_elem){
 
     char word[MAXLEN] = {'!'};
     unsigned char first_elem[MAXLEN] = {'!'};
@@ -363,7 +316,7 @@ void Akinator::selected_elem(knot* cur_elem){
     }
 }
 
-void Akinator::debug_show(int& loop_status){
+void Tree::debug_show(int& loop_status){
 
     char word[MAXLEN] = {'!'};
     unsigned char first_elem[MAXLEN] = {'!'};
@@ -404,18 +357,12 @@ void Akinator::debug_show(int& loop_status){
     loop_status = Next_loop_itter;
 }
 
-void Akinator::debug(){
+void Tree::debug(){
 
     char word[MAXLEN] = {'!'};
     unsigned char first_elem[MAXLEN] = {'!'};
     unsigned char second_elem[MAXLEN] = {'!'};
     int loop_status = Init_status;
-
-    printf("\n_______________________________");
-    printf("_________________________________");
-    printf("_________________________________\n\n");
-    printf("Akinator debug mode\n");
-    printf("(for more information enter 'info')\n");
 
     scanf("%s", word);
 
@@ -462,8 +409,161 @@ void Akinator::debug(){
             loop_status = Init_status;
             
         }
-        
+
         scanf("%s", word);
     }
 }
 
+Tree::knot* Tree::find_elem(unsigned char* elem, knot* brunch){
+
+    if (brunch != nullptr){
+
+        if (strcmp((char*)brunch->data, (char*)elem) == 0){
+
+            return brunch;
+        } else{
+
+            if (find_elem(elem, brunch->R_brunch) != nullptr){
+
+                return find_elem(elem, brunch->R_brunch);
+            } else{
+
+                return find_elem(elem, brunch->L_brunch);
+            }
+        }
+    } else{
+
+        return nullptr;
+    }
+}
+
+void Tree::find_shared_knot(knot*& link_to_fir_elem, knot*& link_to_sec_elem){
+
+    while (link_to_fir_elem->knot_depth != link_to_sec_elem->knot_depth){
+
+        if(link_to_fir_elem->knot_depth > link_to_sec_elem->knot_depth){
+
+            link_to_fir_elem = link_to_fir_elem->prev;
+        } else{
+
+            link_to_sec_elem = link_to_sec_elem->prev;
+        }
+    }
+
+    while (link_to_fir_elem->prev != link_to_sec_elem->prev){
+
+        assert(link_to_fir_elem->prev != nullptr);
+        assert(link_to_sec_elem->prev != nullptr);
+        link_to_fir_elem = link_to_fir_elem->prev;
+        link_to_sec_elem = link_to_sec_elem->prev;
+    }
+}
+
+void Tree::print_similarities_and_differences(knot* link_to_fir_elem, knot* link_to_sec_elem){
+
+    unsigned char* fir_elems_name = link_to_fir_elem->data;
+    unsigned char* sec_elems_name = link_to_sec_elem->data;
+
+    find_shared_knot(link_to_fir_elem, link_to_sec_elem);
+    
+    if (link_to_fir_elem->knot_horizontal_position > link_to_sec_elem->knot_horizontal_position){
+
+        std::swap(fir_elems_name, sec_elems_name);
+    }
+
+    if ((link_to_fir_elem->prev == root) || (link_to_fir_elem == root)){
+
+        if (link_to_fir_elem->prev == root){
+
+            printf("Персонажи %s и %s не имеют общих черт,", fir_elems_name, sec_elems_name);
+            printf("но различаются тем, что %s имеет признак %s, а %s нет\n", fir_elems_name, link_to_fir_elem->prev->data, sec_elems_name);
+        } else{
+
+            printf("Один из элементов это корень\n");
+        }
+        
+    } else{ 
+    
+        printf("Персонаж %s похож на %s тем, что каждый из них: ", fir_elems_name, sec_elems_name);
+
+        link_to_sec_elem = link_to_sec_elem->prev;
+        while (link_to_sec_elem != root){
+            
+            if (link_to_sec_elem->prev->R_brunch == link_to_sec_elem){
+
+                link_to_sec_elem = link_to_sec_elem->prev;
+                printf("не %s, ", link_to_sec_elem->data);
+            } else{
+
+                link_to_sec_elem = link_to_sec_elem->prev;
+                printf("%s, ", link_to_sec_elem->data);
+            }
+        }
+
+        printf("но различаются тем, что %s имеет признак %s, а %s нет\n", fir_elems_name, link_to_fir_elem->prev->data, sec_elems_name);
+    }
+}
+
+void Tree::show_matches(unsigned char* fir_elem, unsigned char* sec_elem){
+
+    knot* link_to_fir_elem = find_elem(fir_elem, root);
+    knot* link_to_sec_elem = find_elem(sec_elem, root);
+
+    if (   (link_to_fir_elem == nullptr) 
+        || (link_to_sec_elem == nullptr)
+        || (link_to_fir_elem == link_to_sec_elem)){
+
+        if ((link_to_fir_elem == link_to_sec_elem) && (link_to_fir_elem != nullptr)){
+
+            printf("Элементы одинаковые\n");
+        } else{
+
+            printf("Can't find such elements\n");
+        }
+        
+    } else{
+
+        print_similarities_and_differences(link_to_fir_elem, link_to_sec_elem);
+    }
+}
+
+
+void Tree::Names_stack::push(int index, knot* new_knot){
+
+    assert((size - index >= 0) && (size - index < size));
+    knots[size - index] = new_knot;
+}
+
+bool Tree::Names_stack::if_left_branch(int index){
+
+    assert((index >= 0) && (index < size));
+    if (knots[index]->L_brunch == knots[index + 1]){
+
+        return true;
+    } else{
+
+        return false;
+    }
+}
+
+unsigned char* Tree::Names_stack::get_name(int index){
+
+    assert((index >= 0) && (index < size));
+    return knots[index]->data;
+}
+
+bool Tree::Names_stack::is_leaf(int index){
+
+    assert((index >= 0) && (index < size));
+    if ((knots[index]->L_brunch == nullptr) && (knots[index]->R_brunch == nullptr)){
+
+        return true;
+    }
+
+    return false;
+}
+
+void Tree::Names_stack::destroy(){
+
+    delete[] knots;
+}

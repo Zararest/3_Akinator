@@ -2,8 +2,10 @@
 
 #include <cassert>
 #include <cstring>
+#include <stdio.h>
+#include <stdlib.h>
 
-void init_L_brn_data(knot* tmp){
+void Tree::init_L_brn_data(knot* tmp){
 
     tmp->L_brunch = new knot;
     tmp->L_brunch->knot_depth = tmp->knot_depth + 1;
@@ -11,7 +13,7 @@ void init_L_brn_data(knot* tmp){
     tmp->L_brunch->prev = tmp;
 }
 
-void init_R_brn_data(knot* tmp){
+void Tree::init_R_brn_data(knot* tmp){
 
     tmp->R_brunch = new knot;
     tmp->R_brunch->knot_depth = tmp->knot_depth + 1;
@@ -46,7 +48,8 @@ unsigned char* my_memcpy(unsigned char* line){
         len++;
     }
 
-    new_line = (unsigned char*)calloc(len + 1, sizeof(char));
+    //new_line = (unsigned char*)calloc(len + 1, sizeof(char));
+    new_line = new unsigned char[len + 1];
 
     for(int i = 0; i <= len; i++){
         new_line[i] = line[i];
@@ -137,17 +140,17 @@ Tree::Tree(FILE* base){
 //------------------
 
 //------------------Рекурсивная простая распечатка 
-void print_knot(knot* tmp){
+void Tree::print_knot(knot* cur_knot){
 
-    if (tmp != nullptr){
+    if (cur_knot != nullptr){
 
-        print_knot(tmp->L_brunch);
-        printf("%s[%i][%i]\n", tmp->data, tmp->knot_horizontal_position, tmp->knot_depth);
-        print_knot(tmp->R_brunch);
+        print_knot(cur_knot->L_brunch);
+        printf("%s[%i][%i]\n", cur_knot->data, cur_knot->knot_horizontal_position, cur_knot->knot_depth);
+        print_knot(cur_knot->R_brunch);
     }
 }
 
-void Tree::dump_tree(){
+void Tree::dump_common(){
 
     printf("Dumped tree: *name*[horizontal_position][depth]\n");
     print_knot(root);
@@ -155,20 +158,12 @@ void Tree::dump_tree(){
 //------------------
 
 //------------------Рекурсивная запись данных в файл
-void add_to_file(knot* tmp, FILE* output){
+void Tree::add_to_file(knot* cur_knot, FILE* output){
 
-    if (tmp != nullptr){
+    if (cur_knot != nullptr){
 
-        fwrite(tmp->data, sizeof(char), length(tmp->data), output);
-        if (tmp->L_brunch != nullptr){
-
-            fwrite("|Y|", sizeof(char), 3, output);
-        } else{
-
-            fwrite("|N|", sizeof(char), 3, output);
-        }
-
-        if (tmp->R_brunch != nullptr){
+        fwrite(cur_knot->data, sizeof(char), length(cur_knot->data), output);
+        if (cur_knot->L_brunch != nullptr){
 
             fwrite("|Y|", sizeof(char), 3, output);
         } else{
@@ -176,14 +171,23 @@ void add_to_file(knot* tmp, FILE* output){
             fwrite("|N|", sizeof(char), 3, output);
         }
 
-        add_to_file(tmp->L_brunch, output);
-        add_to_file(tmp->R_brunch, output);
+        if (cur_knot->R_brunch != nullptr){
+
+            fwrite("|Y|", sizeof(char), 3, output);
+        } else{
+
+            fwrite("|N|", sizeof(char), 3, output);
+        }
+
+        add_to_file(cur_knot->L_brunch, output);
+        add_to_file(cur_knot->R_brunch, output);
     }
 }
 
 void Tree::create_base_file(char* name_of_file){
 
     FILE* output = fopen(name_of_file, "wb");
+    assert(output != nullptr);
 
     data_size += 2;
     fwrite(&data_size, sizeof(int), 1, output);
@@ -194,15 +198,15 @@ void Tree::create_base_file(char* name_of_file){
 //------------------
 
 //------------------Рекурсивный деструктор
-void delete_knot(knot* tmp){
+void Tree::delete_knot(knot* cur_knot){
 
-    if (tmp != nullptr){
+    if (cur_knot != nullptr){
 
-        delete_knot(tmp->L_brunch);
-        delete_knot(tmp->R_brunch);
+        delete_knot(cur_knot->L_brunch);
+        delete_knot(cur_knot->R_brunch);
 
-        free(tmp->data);
-        free(tmp);
+        delete[] cur_knot->data;
+        delete cur_knot;
     }
 }
 
@@ -211,3 +215,85 @@ Tree::~Tree(){
     delete_knot(root);
 }
 //------------------
+
+void Tree::add_before_left(knot_ptr cur_knot, unsigned char* leaf_data){
+    
+}
+
+void Tree::add_L_leaf(knot_ptr cur_knot, unsigned char* leaf_data){
+
+    init_L_brn_data(cur_knot.knot_of_tree);
+    cur_knot.knot_of_tree->L_brunch->data = my_memcpy(leaf_data);//добавить проыерку на nullptr
+    
+    data_size += length(cur_knot.knot_of_tree->L_brunch->data) + 6;
+}
+
+void Tree::add_R_leaf(knot_ptr cur_knot, unsigned char* leaf_data){
+
+    init_R_brn_data(cur_knot.knot_of_tree);
+    cur_knot.knot_of_tree->R_brunch->data = my_memcpy(leaf_data);
+    
+    data_size += length(cur_knot.knot_of_tree->R_brunch->data) + 6;
+}
+
+void Tree::print_brunch(int* position_of_line, int number_of_lines, knot* cur_knot){
+    
+    int i = 0;
+
+    if (cur_knot != nullptr){
+
+        for (i = 0; i < number_of_lines; i++){
+
+            for (int j = 0; j < abs(position_of_line[i]); j++){
+                printf(" ");
+            }
+
+            if (position_of_line[i] > 0){
+
+               printf("|"); 
+            } 
+        }
+
+        if (position_of_line[i - 1] < 0){
+
+            printf("|__");
+        } else{
+
+            printf("__");
+        }
+        
+        assert(cur_knot->data != nullptr);
+        printf("%s\n", cur_knot->data);
+
+        position_of_line[number_of_lines] = length(cur_knot->data); 
+
+        position_of_line[i] = abs(position_of_line[i]);
+        print_brunch(position_of_line, number_of_lines + 1, cur_knot->R_brunch);
+        position_of_line[i] = abs(position_of_line[i]) * (-1);
+        print_brunch(position_of_line, number_of_lines + 1, cur_knot->L_brunch);
+    }
+}
+
+void Tree::dump(){
+
+    assert(root != nullptr);
+
+    int number_of_lines = 1;
+    int* position_of_line = new int[depth + 1];
+    position_of_line[0] = length(root->data);
+
+    printf("\nDump of tree:\n");
+    if (root-> data != nullptr){
+
+        printf("%s\n", root->data);
+        print_brunch(position_of_line, number_of_lines, root->R_brunch);
+        position_of_line[0] = position_of_line[0] * (-1);
+        print_brunch(position_of_line, number_of_lines, root->L_brunch);
+    } else{
+
+        printf("nothing\n");
+    }
+
+    delete[] position_of_line;
+}
+
