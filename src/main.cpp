@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "headers/tree.h"
+#include <cstring>
+#include <cassert>
+#include "headers/Akinator.hpp"
 
 void game_without_input(){
 
@@ -27,10 +29,9 @@ void game_without_input(){
 void game_with_input(char* input_name){
 
     FILE* base = fopen(input_name, "rb");
-    assert(base != NULL);
+    assert(base != nullptr);
 
     Akinator my_Akinator(base);
-    unsigned char* tmp = (unsigned char*) calloc(10, sizeof(char));
     char answer[MAXLEN] = {'!'};
     
     while ((answer[0] != 'n') && (answer[0] != 'N')){
@@ -48,7 +49,7 @@ int main(){
 
     setlocale(LC_ALL, "Russian");
     char input_name[MAXLEN] = {'\0'};
-    FILE* input_file = NULL;
+    FILE* input_file = nullptr;
 
     printf("Вас приветствует Акинатор версии 0.001\n");
     printf("Если вы уже имеете базу с персонажами, то укажите название бинарного файла(если нет, то введите N):\n");

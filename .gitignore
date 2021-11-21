@@ -2,3 +2,4 @@ test.cpp
 *.o
 Array.inl
 Array.h
+build
