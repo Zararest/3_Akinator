@@ -1,7 +1,8 @@
 #pragma once
 #include "Tree.hpp"
 
-;
+// .hpp extension
+
 
 class Akinator: public Tree{
 

@@ -234,7 +234,7 @@ int Akinator::guess_and_add(){
             return MY_FAULT;  
         }
 
-    } else{
+    } else { 
 
         printf("Не знаю такого предмета\n");
         add_object(prev_knot, answer);

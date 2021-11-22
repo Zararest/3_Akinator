@@ -1,0 +1,9 @@
+digraph Dump{
+node[color=red,fontsize=14, style=filled,fillcolor=lightgrey]
+живое[shape=rectangle]
+живое -> Живет_у_фопфов
+Живет_у_фопфов -> живоеЖивет_у_фопфов -> МПП
+МПП -> Живет_у_фопфовМПП[fillcolor=red]
+Живет_у_фопфов -> Полторашка
+Полторашка -> Живет_у_фопфовПолторашка[fillcolor=red]
+}

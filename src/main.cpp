@@ -13,6 +13,9 @@
 #include <cstring>
 #include "headers/Akinator.hpp"
 
+// command line arguments
+// add colored printf
+
 void game_without_input(){
 
     Akinator my_Akinator;
@@ -23,7 +26,8 @@ void game_without_input(){
 
         my_Akinator.guess_and_add();
         printf("\nХотите продолжить? [Y/N]\n");
-        scanf("%s", answer);
+        scanf("%s", answer); // just in case
+        // protection
     }
 
     printf("Введите файл, куда будет загружено дерево(если вы не хотите этого, то введите N)\n");
