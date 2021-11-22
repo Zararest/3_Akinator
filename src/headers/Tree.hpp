@@ -42,6 +42,7 @@ private:
     void init_R_brn_data(knot* cur_knot);
     void init_knot(knot*& cur_knot, bool l_brn_exist, bool r_brn_exist, knot* undef_brunch);
     void print_knot(knot* cur_knot);
+    void print_knot_graphviz(knot* cur_knot, FILE* outp_file);
     void add_to_file(knot* tmp, FILE* output);
     void delete_knot(knot* cur_knot);
     knot* find_elem(unsigned char* elem, knot* brunch);
@@ -126,6 +127,7 @@ public:
 
     void dump_common();
     void dump();
+    void dump_graphviz(FILE* outp_file);
     void debug();
     void show_matches(unsigned char*, unsigned char*);
     void create_base_file(char* input_name);

@@ -21,7 +21,6 @@ public:
     ~Akinator() = default;
 
     int guess_and_add();
-    void dump();
     void debug();
     void create_base_file(char* filename);
 

@@ -455,6 +455,63 @@ void Tree::print_brunch(int* position_of_line, int number_of_lines, knot* cur_kn
 }
 
 /**
+ * @brief Рекурсивная распечатка узла для graphviz
+ * 
+ * @param cur_knot 
+ * @param outp_file 
+ */
+void Tree::print_knot_graphviz(knot* cur_knot, FILE* outp_file){
+
+    if (cur_knot->prev != nullptr){
+
+        fprintf(outp_file, "%s -> %s", cur_knot->data, cur_knot->prev->data);
+    }
+
+    if ((cur_knot->L_brunch == nullptr) && (cur_knot->R_brunch == nullptr)){
+
+        fprintf(outp_file, "%s[fillcolor=""red""]\n", cur_knot->data);
+    } else{
+
+        if (cur_knot->L_brunch != nullptr){
+
+            fprintf(outp_file, "%s -> %s\n", cur_knot->data, cur_knot->L_brunch->data);
+            print_knot_graphviz(cur_knot->L_brunch, outp_file);
+        }
+
+        if (cur_knot->R_brunch != nullptr){
+
+            fprintf(outp_file, "%s -> %s\n", cur_knot->data, cur_knot->R_brunch->data);
+            print_knot_graphviz(cur_knot->R_brunch, outp_file);
+        }
+    }
+}
+
+/**
+ * @brief Вывод дерева в файл для построения графа через graphviz
+ * 
+ * @param outp_file 
+ */
+void Tree::dump_graphviz(FILE* outp_file){
+
+    assert(outp_file != nullptr);
+
+    fprintf(outp_file, "digraph Dump{\n");
+    
+    fprintf(outp_file, "node[color=""red"",fontsize=14, style=""filled"",fillcolor=""lightgrey""]\n");
+    fprintf(outp_file, "%s[shape=""rectangle""]\n", root->data);
+    
+    if (root->L_brunch != nullptr){
+        fprintf(outp_file, "%s -> %s\n", root->data, root->L_brunch->data);
+        print_knot_graphviz(root->L_brunch, outp_file);
+    }
+    if (root->R_brunch != nullptr){
+        fprintf(outp_file, "%s -> %s\n", root->data, root->R_brunch->data);
+        print_knot_graphviz(root->R_brunch, outp_file);
+    }
+    fprintf(outp_file, "}\n");
+}
+
+/**
  * @brief Вывод дерева в консоль со связями между узлами
  * 
  */
@@ -462,6 +519,7 @@ void Tree::dump(){
 
     assert(root != nullptr);
 
+    char name[MAXLEN] = {'!'};
     int number_of_lines = 1;
     int* position_of_line = new int[depth + 1];
     position_of_line[0] = length(root->data);
@@ -469,10 +527,29 @@ void Tree::dump(){
     printf("\nDump of tree:\n");
     if (root-> data != nullptr){
 
-        printf("%s\n", root->data);
-        print_brunch(position_of_line, number_of_lines, root->R_brunch);
-        position_of_line[0] = position_of_line[0] * (-1);
-        print_brunch(position_of_line, number_of_lines, root->L_brunch);
+        printf("Укажите название файла в который будет выведена информация для graphviz.(Если хотите вывести дерево в консоль введите N)\n");
+
+        scanf("%s", name);
+        if (strcmp(name, "N") != 0){
+
+            FILE* dump_file = fopen(name, "w");
+
+            if (dump_file != nullptr){
+
+                dump_graphviz(dump_file);
+                fclose(dump_file);
+            } else{
+
+                printf("Невозможно открыть файл\n");
+            }
+        } else{
+
+            printf("%s\n", root->data);
+            print_brunch(position_of_line, number_of_lines, root->R_brunch);
+            position_of_line[0] = position_of_line[0] * (-1);
+            print_brunch(position_of_line, number_of_lines, root->L_brunch);
+        }
+        
     } else{
 
         printf("nothing\n");
