@@ -1,25 +1,37 @@
+/**
+ * @file Akinator.cpp
+ * @author Zararest
+ * @brief Функции класса Акинатор
+ * @version 0.1
+ * @date 2021-11-22
+ * 
+ * @copyright Copyright (c) 2021
+ * 
+ */
+
 #include "headers/Akinator.hpp"
 #include <cassert>
 #include <cstring>
 #include <iostream>
 
-//------------------Конструктор без входного файла(вызывает конструктор дерева)               
+/**
+ * @brief Construct a new Akinator:: Akinator object
+ * 
+ */
 Akinator::Akinator(): tree_container(){
 
     setlocale(LC_ALL, "Russian");
 }
-//------------------
 
-//------------------Конструктор с входным файлом
+/**
+ * @brief Construct a new Akinator:: Akinator object
+ * 
+ * @param base 
+ */
 Akinator::Akinator(FILE* base): tree_container(base) {
 
     setlocale(LC_ALL, "Russian");
 }
-//------------------
-
-//------------------Деструктор(вроде должен вызываться деструктор материнского класса)
-Akinator::~Akinator(){}
-//------------------
 
 bool is_yes(char* answer){
     
@@ -41,7 +53,11 @@ bool is_no(char* answer){
     return false;
 }
 
-//------------------Задание вопроса
+/**
+ * @brief Циклический запрос ответа на вопрос
+ * 
+ * @return Код ответа 
+ */
 int Akinator::find_answer(){
 
     unsigned char answer[MAXLEN] = {'!'};
@@ -73,9 +89,13 @@ int Akinator::find_answer(){
         }
     }
 }
-//------------------
 
-//------------------Добавление предмета
+/**
+ * @brief Добавление нового персонажа в базу Акинатора после неудачной попытки угадать
+ * 
+ * @param old_leaf 
+ * @param answer 
+ */
 void Akinator::add_object(knot_ptr old_leaf, int answer){
 
     unsigned char name[MAXLEN] = {'!'};
@@ -92,9 +112,12 @@ void Akinator::add_object(knot_ptr old_leaf, int answer){
         add_R_leaf(old_leaf, name);
     }
 }
-//------------------
 
-//------------------Добавление вопроса и ответа
+/**
+ * @brief Добавление нового вопроса и персонажа в базу Акинатора после неудачной попытки угадать 
+ * 
+ * @param old_leaf 
+ */
 void Akinator::add_question(knot_ptr old_leaf){
     
     unsigned char name[MAXLEN] = {'!'};
@@ -115,7 +138,7 @@ void Akinator::add_question(knot_ptr old_leaf){
 
     if (answer == YES){
 
-        tree_container.add_before_right(old_leaf, attribute);//делает прошлый лист правым
+        tree_container.add_before_right(old_leaf, attribute);
         tree_container.add_L_leaf(tree_container.get_prev_brn(old_leaf), name);
     }
 
@@ -125,9 +148,10 @@ void Akinator::add_question(knot_ptr old_leaf){
         tree_container.add_R_leaf(tree_container.get_prev_brn(old_leaf), name);
     }
 }
-//------------------
-
-//------------------Добавление первых данных в пустое дерево
+/**
+ * @brief Добавление вопроса и персонажа в базу Акинатора, если изначально она была пуста
+ * 
+ */
 void Akinator::init_tree_data(){
 
     unsigned char attribute[MAXLEN] = {'!'};
@@ -154,10 +178,13 @@ void Akinator::init_tree_data(){
 
     tree_container.change_data(tree_container.get_root(), attribute);
 }
-//------------------
 
-//------------------Угадывание и добавление в дерево
-int Akinator::guess_and_add(){//если да то идем влево
+/**
+ * @brief Задание вопросов и обработка ответов на них
+ * 
+ * @return Исход игры 
+ */
+int Akinator::guess_and_add(){
     
     knot_ptr cur_knot = tree_container.get_root();
     knot_ptr prev_knot = cur_knot;
@@ -216,8 +243,21 @@ int Akinator::guess_and_add(){//если да то идем влево
 
     return MY_FAULT;
 }
-//------------------
 
+/**
+ * @brief Создание файла с базой Акинатора
+ * 
+ * @param filename 
+ */
+void Akinator::create_base_file(char* filename){
+
+    tree_container.create_base_file(filename);
+}
+
+/**
+ * @brief Вызов режима редактирования дерева
+ * 
+ */
 void Akinator::debug(){
 
     printf("\n_______________________________");

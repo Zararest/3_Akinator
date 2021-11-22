@@ -1,5 +1,3 @@
-//создается файл в который записывается имя на каждом шагу и его ветки; в конструктор может подаваться этот файл
-// и при чтении бужет восстанавливаться дерево (надо сделать его двусвязным и подниматься пока нету поворота)
 #pragma once
 
 #define MAXLEN 128
@@ -20,8 +18,6 @@ enum Answers{
     DEBUG = 2,
 };
 
-struct Names_stack;
-
 class Tree{
 
 private:
@@ -40,18 +36,16 @@ private:
     int depth = 0;
     int rightest_knot = 0;
     int leftest_knot = 0;
-    int data_size = 0;
 
     void init_L_brn_data(knot* cur_knot); 
     void init_R_brn_data(knot* cur_knot);
-
     void init_knot(knot*& cur_knot, bool l_brn_exist, bool r_brn_exist, knot* undef_brunch);
     void print_knot(knot* cur_knot);
     void add_to_file(knot* tmp, FILE* output);
     void delete_knot(knot* cur_knot);
     knot* find_elem(unsigned char* elem, knot* brunch);
-    void create_base_file(char* input_name);
     void print_brunch(int* position_of_line, int number_of_lines, knot* cur_knot);
+    int calc_data_size(knot* cur_tree_root);
 
     void debug_add(int& loop_status, knot* cur_elem);
     void debug_delete(int& loop_status, knot* cur_elem);
@@ -72,7 +66,7 @@ public:
         friend Tree;
     };
 
-    Tree();
+    Tree(){ root = new knot; }
     Tree(FILE* base);
     ~Tree();    
 
@@ -133,6 +127,7 @@ public:
     void dump();
     void debug();
     void show_matches(unsigned char*, unsigned char*);
+    void create_base_file(char* input_name);
 
     Tree& operator = (const Tree&) = delete;
     Tree(const Tree& old__tree) = delete;

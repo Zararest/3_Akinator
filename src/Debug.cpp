@@ -15,6 +15,12 @@ enum Loop_problems{
     Drop_knot = 1
 };
 
+/**
+ * @brief Копирование одного файла в другой
+ * 
+ * @param from 
+ * @param to 
+ */
 void copy_to_stream(int from, int to){
 
     int read_ret = -1;
@@ -31,6 +37,11 @@ void copy_to_stream(int from, int to){
     }
 }
 
+/**
+ * @brief Вывод инструкций для режима debug в консоль
+ * 
+ * @param name 
+ */
 void print_file(const char* name){
 
     int fp = open(name, O_RDONLY);
@@ -39,6 +50,10 @@ void print_file(const char* name){
     copy_to_stream(fp, STDOUT_FILENO);
 }
 
+/**
+ * @brief Распечатка содержимого файла как дерева
+ * 
+ */
 void dump_file(){
 
     char name[MAXLEN] = {'!'};
@@ -51,6 +66,11 @@ void dump_file(){
     tmp_tree.dump();
 }
 
+/**
+ * @brief Вывод пути для заданного узла
+ * 
+ * @param last_elem 
+ */
 void Tree::print_path(knot* last_elem){
     
     assert(last_elem != nullptr);
@@ -91,6 +111,13 @@ void Tree::print_path(knot* last_elem){
     stack.destroy();
 }
 
+/**
+ * @brief Рекурсивное изменение информации о положении узлов
+ * 
+ * @param cur_knot 
+ * @param cur_depth 
+ * @param cur_hor_position 
+ */
 void Tree::fix_knots_positions(knot* cur_knot, int cur_depth, int cur_hor_position){
 
     if (cur_knot != nullptr){
@@ -107,6 +134,12 @@ void Tree::fix_knots_positions(knot* cur_knot, int cur_depth, int cur_hor_positi
     }
 }
 
+/**
+ * @brief Обработка команд add
+ * 
+ * @param loop_status 
+ * @param cur_elem 
+ */
 void Tree::debug_add(int& loop_status, knot* cur_elem){
 
     char word[MAXLEN] = {'!'};
@@ -191,6 +224,12 @@ void Tree::debug_add(int& loop_status, knot* cur_elem){
     }
 }
 
+/**
+ * @brief Удаление листа
+ * 
+ * @param loop_status 
+ * @param cur_elem 
+ */
 void Tree::debug_delete(int& loop_status, knot* cur_elem){
 
     if  ((cur_elem->R_brunch == nullptr) && (cur_elem->L_brunch == nullptr)){
@@ -216,6 +255,13 @@ void Tree::debug_delete(int& loop_status, knot* cur_elem){
     }
 }
 
+/**
+ * @brief Слияние текущего дерева и дерева из указанного файла через выбранную в данный момент вершину
+ * 
+ * @param loop_status 
+ * @param cur_elem 
+ * @param second_tree 
+ */
 void Tree::debug_merge(int& loop_status, knot* cur_elem, FILE* second_tree){
 
     if (second_tree != nullptr){
@@ -236,7 +282,6 @@ void Tree::debug_merge(int& loop_status, knot* cur_elem, FILE* second_tree){
                 cur_elem->R_brunch->prev = cur_elem;
                 cur_elem->L_brunch->prev = cur_elem;
 
-                data_size += tmp_tree.data_size;
                 fix_knots_positions(root, 0, 0);
 
                 delete tmp_tree.root->data;
@@ -256,6 +301,11 @@ void Tree::debug_merge(int& loop_status, knot* cur_elem, FILE* second_tree){
     }
 }
 
+/**
+ * @brief Обработка команд, связанных с выбранным элементом
+ * 
+ * @param cur_elem 
+ */
 void Tree::selected_elem(knot* cur_elem){
 
     char word[MAXLEN] = {'!'};
@@ -316,6 +366,11 @@ void Tree::selected_elem(knot* cur_elem){
     }
 }
 
+/**
+ * @brief Обработка команд show
+ * 
+ * @param loop_status 
+ */
 void Tree::debug_show(int& loop_status){
 
     char word[MAXLEN] = {'!'};
@@ -357,6 +412,10 @@ void Tree::debug_show(int& loop_status){
     loop_status = Next_loop_itter;
 }
 
+/**
+ * @brief Обработка команд редактирования дерева
+ * 
+ */
 void Tree::debug(){
 
     char word[MAXLEN] = {'!'};
@@ -402,18 +461,24 @@ void Tree::debug(){
         if (loop_status == Init_status){
 
             printf("Strange command\n");
+            loop_status = Next_loop_itter;
         }
 
         if (loop_status == Next_loop_itter){
 
             loop_status = Init_status;
-            
+            scanf("%s", word);
         }
-
-        scanf("%s", word);
     }
 }
 
+/**
+ * @brief Рекурсивное нахождение элемента по имени
+ * 
+ * @param elem 
+ * @param brunch 
+ * @return Tree::knot* 
+ */
 Tree::knot* Tree::find_elem(unsigned char* elem, knot* brunch){
 
     if (brunch != nullptr){
@@ -437,6 +502,12 @@ Tree::knot* Tree::find_elem(unsigned char* elem, knot* brunch){
     }
 }
 
+/**
+ * @brief Нахождение ближайшего общего узла между данными узлами
+ * 
+ * @param link_to_fir_elem 
+ * @param link_to_sec_elem 
+ */
 void Tree::find_shared_knot(knot*& link_to_fir_elem, knot*& link_to_sec_elem){
 
     while (link_to_fir_elem->knot_depth != link_to_sec_elem->knot_depth){
@@ -459,6 +530,12 @@ void Tree::find_shared_knot(knot*& link_to_fir_elem, knot*& link_to_sec_elem){
     }
 }
 
+/**
+ * @brief Вывод сходств и различий данных узлов
+ * 
+ * @param link_to_fir_elem 
+ * @param link_to_sec_elem 
+ */
 void Tree::print_similarities_and_differences(knot* link_to_fir_elem, knot* link_to_sec_elem){
 
     unsigned char* fir_elems_name = link_to_fir_elem->data;
@@ -504,6 +581,12 @@ void Tree::print_similarities_and_differences(knot* link_to_fir_elem, knot* link
     }
 }
 
+/**
+ * @brief Вывод сходств и различий элементов, соответствующих данным именам
+ * 
+ * @param fir_elem 
+ * @param sec_elem 
+ */
 void Tree::show_matches(unsigned char* fir_elem, unsigned char* sec_elem){
 
     knot* link_to_fir_elem = find_elem(fir_elem, root);
@@ -526,7 +609,6 @@ void Tree::show_matches(unsigned char* fir_elem, unsigned char* sec_elem){
         print_similarities_and_differences(link_to_fir_elem, link_to_sec_elem);
     }
 }
-
 
 void Tree::Names_stack::push(int index, knot* new_knot){
 

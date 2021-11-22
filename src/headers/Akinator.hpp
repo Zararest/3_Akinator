@@ -18,12 +18,13 @@ public:
     
     Akinator();
     Akinator(FILE*);
-    ~Akinator();
+    ~Akinator() = default;
 
     int guess_and_add();
     void dump();
     void debug();
-    
-    Akinator& operator = (const Akinator&) = delete;
+    void create_base_file(char* filename);
+
     Akinator(const Akinator&) = delete;
+    Akinator& operator = (const Akinator&) = delete;
 };

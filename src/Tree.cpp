@@ -1,3 +1,13 @@
+/**
+ * @file Tree.cpp
+ * @author Zararest
+ * @brief 
+ * @version 0.1
+ * @date 2021-11-22
+ * 
+ * @copyright Copyright (c) 2021
+ * 
+ */
 #include "headers/Tree.hpp"
 
 #include <cassert>
@@ -5,22 +15,59 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void Tree::init_L_brn_data(knot* tmp){
+#define WORKING_DATA_SIZE 6
 
-    tmp->L_brunch = new knot;
-    tmp->L_brunch->knot_depth = tmp->knot_depth + 1;
-    tmp->L_brunch->knot_horizontal_position = tmp->knot_horizontal_position - 1;
-    tmp->L_brunch->prev = tmp;
+/**
+ * @brief Вычисление размера буфера для записи базы Акинатора в файл
+ * 
+ * @param cur_tree_root 
+ * @return размер буфера 
+ */
+int Tree::calc_data_size(knot* cur_tree_root){
+
+    int size_of_tree = 0;
+
+    if (cur_tree_root != nullptr){
+
+        size_of_tree += calc_data_size(cur_tree_root->L_brunch);
+        size_of_tree += calc_data_size(cur_tree_root->R_brunch);
+        return size_of_tree + WORKING_DATA_SIZE + strlen((char*)cur_tree_root->data);
+    }
+    return 0;
 }
 
-void Tree::init_R_brn_data(knot* tmp){
+/**
+ * @brief Создание пустого левого листа
+ * 
+ * @param tmp 
+ */
+void Tree::init_L_brn_data(knot* cur_knot){
 
-    tmp->R_brunch = new knot;
-    tmp->R_brunch->knot_depth = tmp->knot_depth + 1;
-    tmp->R_brunch->knot_horizontal_position = tmp->knot_horizontal_position - 1;
-    tmp->R_brunch->prev = tmp;
+    cur_knot->L_brunch = new knot;
+    cur_knot->L_brunch->knot_depth = cur_knot->knot_depth + 1;
+    cur_knot->L_brunch->knot_horizontal_position = cur_knot->knot_horizontal_position - 1;
+    cur_knot->L_brunch->prev = cur_knot;
 }
 
+/**
+ * @brief Создание пустого правого листа
+ * 
+ * @param cur_knot 
+ */
+void Tree::init_R_brn_data(knot* cur_knot){
+
+    cur_knot->R_brunch = new knot;
+    cur_knot->R_brunch->knot_depth = cur_knot->knot_depth + 1;
+    cur_knot->R_brunch->knot_horizontal_position = cur_knot->knot_horizontal_position - 1;
+    cur_knot->R_brunch->prev = cur_knot;
+}
+
+/**
+ * @brief Длина строки с учетом юникода
+ * 
+ * @param line 
+ * @return int 
+ */
 int length(unsigned char* line){
 
     if (line == nullptr){ return 0; }
@@ -35,6 +82,12 @@ int length(unsigned char* line){
     return len;
 }
 
+/**
+ * @brief Выделение и копирование памяти
+ * 
+ * @param line 
+ * @return unsigned* char
+ */
 unsigned char* my_memcpy(unsigned char* line){
 
     if (line == nullptr){
@@ -48,7 +101,6 @@ unsigned char* my_memcpy(unsigned char* line){
         len++;
     }
 
-    //new_line = (unsigned char*)calloc(len + 1, sizeof(char));
     new_line = new unsigned char[len + 1];
 
     for(int i = 0; i <= len; i++){
@@ -58,11 +110,14 @@ unsigned char* my_memcpy(unsigned char* line){
     return new_line;
 }
 
-Tree::Tree(){
-
-    root = new knot;
-}
-
+/**
+ * @brief Создание узла дерева при создании по файлу
+ * 
+ * @param cur_knot 
+ * @param l_brn_exist 
+ * @param r_brn_exist 
+ * @param undef_brunch 
+ */
 void Tree::init_knot(knot*& cur_knot, bool l_brn_exist, bool r_brn_exist, knot* undef_brunch){
 
     if (cur_knot->knot_horizontal_position > rightest_knot) rightest_knot = cur_knot->knot_horizontal_position;
@@ -90,7 +145,7 @@ void Tree::init_knot(knot*& cur_knot, bool l_brn_exist, bool r_brn_exist, knot* 
             cur_knot = cur_knot->prev;
         }
 
-        if (cur_knot->R_brunch == undef_brunch){ //!!!
+        if (cur_knot->R_brunch == undef_brunch){
             
             init_R_brn_data(cur_knot);
             cur_knot = cur_knot->R_brunch;
@@ -98,13 +153,20 @@ void Tree::init_knot(knot*& cur_knot, bool l_brn_exist, bool r_brn_exist, knot* 
     }
 }
 
+/**
+ * @brief Construct a new Tree:: Tree object
+ * 
+ * @param base 
+ */
 Tree::Tree(FILE* base){
-
+    
+    assert(base != nullptr);
     root = new knot;
 
-    assert(base != nullptr);
+    int data_size = 0;
     fread(&data_size, sizeof(int), 1, base);
-    unsigned char* buffer = new unsigned char[data_size];
+    unsigned char* buffer = new unsigned char[data_size + 1];
+    buffer[data_size] = '\0';
     fread(buffer, sizeof(char), data_size, base);
 
     knot* undef_brunch = new knot;
@@ -137,9 +199,12 @@ Tree::Tree(FILE* base){
     delete undef_brunch;
     delete[] buffer;
 }
-//------------------
 
-//------------------Рекурсивная простая распечатка 
+/**
+ * @brief Рекурсивная распечатка поддерева
+ * 
+ * @param cur_knot 
+ */
 void Tree::print_knot(knot* cur_knot){
 
     if (cur_knot != nullptr){
@@ -150,19 +215,28 @@ void Tree::print_knot(knot* cur_knot){
     }
 }
 
+/**
+ * @brief Рекурсивный вывод дерева
+ * 
+ */
 void Tree::dump_common(){
 
     printf("Dumped tree: *name*[horizontal_position][depth]\n");
     print_knot(root);
 }
-//------------------
 
-//------------------Рекурсивная запись данных в файл
+/**
+ * @brief Запись дерева в файл
+ * 
+ * @param cur_knot 
+ * @param output 
+ */
 void Tree::add_to_file(knot* cur_knot, FILE* output){
 
     if (cur_knot != nullptr){
-
-        fwrite(cur_knot->data, sizeof(char), length(cur_knot->data), output);
+        
+        fwrite(cur_knot->data, sizeof(char), strlen((char*)cur_knot->data), output);
+        
         if (cur_knot->L_brunch != nullptr){
 
             fwrite("|Y|", sizeof(char), 3, output);
@@ -184,20 +258,28 @@ void Tree::add_to_file(knot* cur_knot, FILE* output){
     }
 }
 
+/**
+ * @brief Создание файла для записи в него дерева
+ * 
+ * @param name_of_file 
+ */
 void Tree::create_base_file(char* name_of_file){
 
     FILE* output = fopen(name_of_file, "wb");
     assert(output != nullptr);
+    int data_size = calc_data_size(root);
 
-    data_size += 2;
     fwrite(&data_size, sizeof(int), 1, output);
     add_to_file(root, output);
 
     fclose(output);
 }
-//------------------
 
-//------------------Рекурсивный деструктор
+/**
+ * @brief Рекурсивное удаление поддерева
+ * 
+ * @param cur_knot 
+ */
 void Tree::delete_knot(knot* cur_knot){
 
     if (cur_knot != nullptr){
@@ -210,32 +292,130 @@ void Tree::delete_knot(knot* cur_knot){
     }
 }
 
+/**
+ * @brief Destroy the Tree:: Tree object
+ * 
+ */
 Tree::~Tree(){
 
     delete_knot(root);
 }
-//------------------
 
+/**
+ * @brief Добавление узла с leaf_data до cur_knot. cur_knot становится левой веткой для нового узла
+ * 
+ * @param cur_knot 
+ * @param leaf_data 
+ */
 void Tree::add_before_left(knot_ptr cur_knot, unsigned char* leaf_data){
     
+    assert(cur_knot.knot_of_tree != nullptr);
+    knot* prev_knot = cur_knot.knot_of_tree->prev;
+    knot* new_knot = new knot;
+    new_knot->data = my_memcpy(leaf_data);
+
+    new_knot->L_brunch = cur_knot.knot_of_tree;
+    cur_knot.knot_of_tree->prev = new_knot;
+
+    if (prev_knot != nullptr){
+
+        if (prev_knot->L_brunch == cur_knot.knot_of_tree){
+
+            prev_knot->L_brunch = new_knot;
+        } else{
+
+            prev_knot->R_brunch = new_knot;
+        }
+        new_knot->prev = prev_knot;
+
+        fix_knots_positions(new_knot, prev_knot->knot_depth + 1, prev_knot->knot_horizontal_position - 1);
+    } else{
+        
+        assert(cur_knot.knot_of_tree == root);
+        root = new_knot;
+        fix_knots_positions(new_knot, 0, 0);
+    }
 }
 
+/**
+ * @brief Добавление узла с leaf_data до cur_knot. cur_knot становится правой веткой для нового узла
+ * 
+ * @param cur_knot 
+ * @param leaf_data 
+ */
+void Tree::add_before_right(knot_ptr cur_knot, unsigned char* leaf_data){
+
+    assert(cur_knot.knot_of_tree != nullptr);
+    knot* prev_knot = cur_knot.knot_of_tree->prev;
+    knot* new_knot = new knot;
+    new_knot->data = my_memcpy(leaf_data);
+
+    new_knot->R_brunch = cur_knot.knot_of_tree;
+    cur_knot.knot_of_tree->prev = new_knot;
+
+    if (prev_knot != nullptr){
+
+        if (prev_knot->L_brunch == cur_knot.knot_of_tree){
+
+            prev_knot->L_brunch = new_knot;
+        } else{
+
+            prev_knot->R_brunch = new_knot;
+        }
+        new_knot->prev = prev_knot;
+
+        fix_knots_positions(new_knot, prev_knot->knot_depth + 1, prev_knot->knot_horizontal_position + 1);
+    } else{
+        
+        assert(cur_knot.knot_of_tree == root);
+        root = new_knot;
+        fix_knots_positions(new_knot, 0, 0);
+    }
+}
+
+/**
+ * @brief Изменение данных в узле
+ * 
+ * @param cur_knot 
+ * @param new_data 
+ */
+void Tree::change_data(knot_ptr cur_knot, unsigned char* new_data){
+
+    delete cur_knot.knot_of_tree->data;
+    cur_knot.knot_of_tree->data = my_memcpy(new_data);
+}
+
+/**
+ * @brief Добавление листа слева
+ * 
+ * @param cur_knot 
+ * @param leaf_data 
+ */
 void Tree::add_L_leaf(knot_ptr cur_knot, unsigned char* leaf_data){
 
-    init_L_brn_data(cur_knot.knot_of_tree);
-    cur_knot.knot_of_tree->L_brunch->data = my_memcpy(leaf_data);//добавить проыерку на nullptr
-    
-    data_size += length(cur_knot.knot_of_tree->L_brunch->data) + 6;
+    init_L_brn_data(cur_knot.knot_of_tree);//добавить проверку на лист
+    cur_knot.knot_of_tree->L_brunch->data = my_memcpy(leaf_data);
 }
 
+/**
+ * @brief Добавление узла справа
+ * 
+ * @param cur_knot 
+ * @param leaf_data 
+ */
 void Tree::add_R_leaf(knot_ptr cur_knot, unsigned char* leaf_data){
 
     init_R_brn_data(cur_knot.knot_of_tree);
     cur_knot.knot_of_tree->R_brunch->data = my_memcpy(leaf_data);
-    
-    data_size += length(cur_knot.knot_of_tree->R_brunch->data) + 6;
 }
 
+/**
+ * @brief Рекурсивная распечатка с указанием связей между узлами 
+ * 
+ * @param position_of_line 
+ * @param number_of_lines 
+ * @param cur_knot 
+ */
 void Tree::print_brunch(int* position_of_line, int number_of_lines, knot* cur_knot){
     
     int i = 0;
@@ -274,6 +454,10 @@ void Tree::print_brunch(int* position_of_line, int number_of_lines, knot* cur_kn
     }
 }
 
+/**
+ * @brief Вывод дерева в консоль со связями между узлами
+ * 
+ */
 void Tree::dump(){
 
     assert(root != nullptr);

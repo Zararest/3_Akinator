@@ -1,3 +1,13 @@
+/**
+ * @file main.cpp
+ * @author Zararest
+ * @brief 
+ * @version 0.1
+ * @date 2021-11-22
+ * 
+ * @copyright Copyright (c) 2021
+ * 
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <cstring>
@@ -19,7 +29,7 @@ void game_without_input(){
     printf("Введите файл, куда будет загружено дерево(если вы не хотите этого, то введите N)\n");
     scanf("%s", answer);
 
-    if (strcmp("N", answer) == 0){
+    if (strcmp("N", answer) != 0){
 
         my_Akinator.create_base_file(answer);
     }
