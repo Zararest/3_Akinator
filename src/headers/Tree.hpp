@@ -4,6 +4,7 @@
 
 #include <iostream>
 
+
 enum Akinators_code{
 
     MY_WIN = 0,
