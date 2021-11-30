@@ -462,7 +462,7 @@ void Tree::print_brunch(int* position_of_line, int number_of_lines, knot* cur_kn
  */
 void Tree::print_knot_graphviz(knot* cur_knot, FILE* outp_file){
 
-    if (cur_knot->prev != nullptr){
+    if (cur_knot->prev != nullptr){ //это убрать
 
         fprintf(outp_file, "%s -> %s", cur_knot->data, cur_knot->prev->data);
     }
